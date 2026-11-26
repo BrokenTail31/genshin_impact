@@ -1,103 +1,96 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Калькулятор Молитв и Камней Истока — Genshin Impact</title>
-  <script src="https://cdn.tailwindcss.com"></script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: ['Inter', 'sans-serif'],
-          },
-          colors: {
-            celestia: '#080f1e',
-            midnight: '#0c162d',
-            frost: '#7dd3fc',
-            ice: '#bae6fd',
-            starlight: '#fde68a',
-          }
-        }
-      }
-    }
-  </script>
+  <title>Универсальный калькулятор молитв — Genshin Impact</title>
   <style>
-    /* Звёздная палитра Селестии и Снежной: глубокий полуночный синий, ледяной циан и небесное золото */
+    /* =========================================================
+       Палитра Селестии и Снежной (полностью автономные стили)
+       ========================================================= */
+    :root {
+      --bg-deep: #070d1b;
+      --bg-mid: #0c162d;
+      --glass-bg: rgba(13, 24, 48, 0.76);
+      --glass-sub: rgba(19, 34, 65, 0.58);
+      --glass-input: rgba(8, 15, 31, 0.72);
+      --border-ice: rgba(186, 230, 253, 0.14);
+      --border-ice-strong: rgba(125, 211, 252, 0.38);
+      --border-gold: rgba(253, 230, 138, 0.35);
+
+      --text-main: #e2e8f0;
+      --text-bright: #ffffff;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+
+      --ice-light: #bae6fd;
+      --ice: #7dd3fc;
+      --ice-strong: #38bdf8;
+      --gold-light: #fef3c7;
+      --gold: #fde68a;
+      --gold-strong: #fbbf24;
+      --teal: #5eead4;
+      --fuchsia: #f0abfc;
+      --emerald: #6ee7b7;
+      --rose: #fda4af;
+
+      --radius-xl: 24px;
+      --radius-lg: 18px;
+      --radius-md: 12px;
+      --radius-sm: 8px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      color-scheme: dark;
+      scroll-behavior: smooth;
+    }
+
     body {
-      background-color: #080f1e;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-color: var(--bg-deep);
       background-image:
-        radial-gradient(circle at 14% 6%, rgba(56, 189, 248, 0.14) 0%, transparent 40%),
-        radial-gradient(circle at 86% 14%, rgba(253, 230, 138, 0.08) 0%, transparent 38%),
-        radial-gradient(circle at 50% 88%, rgba(14, 165, 233, 0.11) 0%, transparent 50%);
-      color: #e2e8f0;
-      font-family: 'Inter', sans-serif;
+        radial-gradient(circle at 12% 6%, rgba(56, 189, 248, 0.15) 0%, transparent 40%),
+        radial-gradient(circle at 88% 12%, rgba(253, 230, 138, 0.09) 0%, transparent 38%),
+        radial-gradient(circle at 50% 92%, rgba(14, 165, 233, 0.12) 0%, transparent 50%);
+      color: var(--text-main);
       min-height: 100vh;
+      line-height: 1.5;
       overflow-x: hidden;
+      -webkit-font-smoothing: antialiased;
     }
 
-    /* Карточки матового льда с тонким небесным контуром */
-    .glass-card {
-      background: rgba(13, 23, 44, 0.72);
-      backdrop-filter: blur(18px);
-      -webkit-backdrop-filter: blur(18px);
-      border: 1px solid rgba(186, 230, 253, 0.14);
-      box-shadow: 0 12px 36px rgba(2, 6, 18, 0.55);
-    }
-
-    .glass-subcard {
-      background: rgba(19, 33, 62, 0.56);
-      border: 1px solid rgba(125, 211, 252, 0.12);
-    }
-
-    /* Плавное раскрытие подсказок */
-    .tip-content {
-      display: grid;
-      grid-template-rows: 0fr;
-      transition: grid-template-rows 0.28s ease-out, opacity 0.24s ease-out;
-      opacity: 0;
-    }
-    .tip-content.open {
-      grid-template-rows: 1fr;
-      opacity: 1;
-    }
-    .tip-inner {
+    /* Фоновое звёздное небо */
+    #starfield {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
       overflow: hidden;
     }
 
-    /* Кастомный скроллбар */
-    ::-webkit-scrollbar {
-      width: 6px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #080f1e;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(125, 211, 252, 0.25);
-      border-radius: 9999px;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(125, 211, 252, 0.45);
-    }
-
-    /* Мерцание звёзд на фоне */
     @keyframes twinkle {
-      0%, 100% { opacity: 0.18; transform: scale(0.9); }
+      0%, 100% { opacity: 0.16; transform: scale(0.9); }
       50% { opacity: 0.85; transform: scale(1.25); }
     }
+
     .star-dot {
-      position: fixed;
+      position: absolute;
       border-radius: 9999px;
-      pointer-events: none;
-      z-index: 0;
       animation: twinkle var(--dur, 5s) infinite ease-in-out;
       animation-delay: var(--delay, 0s);
     }
+
+    /* Кастомный скроллбар */
+    ::-webkit-scrollbar { width: 7px; height: 7px; }
+    ::-webkit-scrollbar-track { background: var(--bg-deep); }
+    ::-webkit-scrollbar-thumb { background: rgba(125, 211, 252, 0.25); border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(125, 211, 252, 0.45); }
 
     /* Убираем стандартные стрелки у числовых инпутов */
     input[type=number]::-webkit-inner-spin-button,
@@ -108,873 +101,1849 @@
     input[type=number] {
       -moz-appearance: textfield;
     }
+
+    /* Контейнер */
+    .container {
+      position: relative;
+      z-index: 1;
+      max-width: 1040px;
+      margin: 0 auto;
+      padding: 28px 16px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+    }
+
+    @media (min-width: 640px) {
+      .container {
+        padding: 40px 24px 56px;
+        gap: 26px;
+      }
+    }
+
+    /* Стеклянные карточки */
+    .glass-card {
+      background: var(--glass-bg);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--border-ice);
+      border-radius: var(--radius-xl);
+      box-shadow: 0 14px 38px rgba(2, 6, 18, 0.55);
+    }
+
+    .glass-subcard {
+      background: var(--glass-sub);
+      border: 1px solid rgba(125, 211, 252, 0.12);
+      border-radius: var(--radius-lg);
+    }
+
+    /* Шапка */
+    .page-header {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
+    @media (min-width: 900px) {
+      .page-header {
+        flex-direction: row;
+        align-items: flex-end;
+        justify-content: space-between;
+      }
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 5px 12px;
+      border-radius: 9999px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(125, 211, 252, 0.24);
+      color: var(--ice-light);
+      font-size: 12px;
+      font-weight: 500;
+      margin-bottom: 10px;
+    }
+
+    .page-title {
+      font-size: clamp(24px, 4vw, 36px);
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text-bright);
+      line-height: 1.2;
+    }
+
+    .title-gradient {
+      background: linear-gradient(90deg, #bae6fd 0%, #7dd3fc 48%, #fde68a 100%);
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .page-subtitle {
+      margin-top: 8px;
+      font-size: 14px;
+      color: #cbd5e1;
+      max-width: 650px;
+    }
+
+    .header-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    /* Кнопки */
+    button {
+      font-family: inherit;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: inherit;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 9px 14px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.18s ease;
+      min-height: 38px;
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+    }
+
+    .btn-ice {
+      background: rgba(56, 189, 248, 0.14);
+      border: 1px solid rgba(125, 211, 252, 0.28);
+      color: var(--ice-light);
+    }
+
+    .btn-ice:hover {
+      background: rgba(56, 189, 248, 0.24);
+      border-color: rgba(125, 211, 252, 0.45);
+    }
+
+    .btn-ghost {
+      background: rgba(15, 23, 42, 0.72);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      color: #cbd5e1;
+    }
+
+    .btn-ghost:hover {
+      background: rgba(244, 63, 94, 0.14);
+      border-color: rgba(251, 113, 133, 0.35);
+      color: var(--rose);
+    }
+
+    .btn-danger-confirm {
+      background: rgba(244, 63, 94, 0.22) !important;
+      border-color: rgba(251, 113, 133, 0.55) !important;
+      color: #fecdd3 !important;
+    }
+
+    /* =========================================================
+       1. Верхняя сводная панель (Dashboard)
+       ========================================================= */
+    .dashboard {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      border-color: rgba(125, 211, 252, 0.22);
+    }
+
+    @media (min-width: 640px) {
+      .dashboard {
+        padding: 28px;
+      }
+    }
+
+    .dash-top {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 820px) {
+      .dash-top {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+
+    .target-title-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .target-heading {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--text-bright);
+    }
+
+    .target-heading span {
+      color: var(--ice-light);
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .badge-ice {
+      background: rgba(56, 189, 248, 0.16);
+      border: 1px solid rgba(125, 211, 252, 0.34);
+      color: var(--ice-light);
+    }
+
+    .badge-gold {
+      background: rgba(251, 191, 36, 0.14);
+      border: 1px solid rgba(253, 230, 138, 0.34);
+      color: var(--gold);
+    }
+
+    .badge-fuchsia {
+      background: rgba(217, 70, 239, 0.14);
+      border: 1px solid rgba(240, 171, 252, 0.32);
+      color: var(--fuchsia);
+    }
+
+    .badge-muted {
+      background: rgba(148, 163, 184, 0.12);
+      border: 1px solid rgba(148, 163, 184, 0.22);
+      color: #cbd5e1;
+    }
+
+    .status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 15px;
+      border-radius: 16px;
+      font-size: 13px;
+      font-weight: 600;
+      border: 1px solid transparent;
+      flex-shrink: 0;
+    }
+
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 9999px;
+      flex-shrink: 0;
+    }
+
+    .status-ok {
+      background: rgba(16, 185, 129, 0.14);
+      border-color: rgba(110, 231, 183, 0.35);
+      color: var(--emerald);
+    }
+    .status-ok .status-dot { background: var(--emerald); }
+
+    .status-projected {
+      background: rgba(251, 191, 36, 0.14);
+      border-color: rgba(253, 230, 138, 0.35);
+      color: var(--gold-light);
+    }
+    .status-projected .status-dot { background: var(--gold-strong); }
+
+    .status-need {
+      background: rgba(56, 189, 248, 0.14);
+      border-color: rgba(125, 211, 252, 0.3);
+      color: var(--ice-light);
+    }
+    .status-need .status-dot { background: var(--ice); }
+
+    /* 3 главные карточки статистики */
+    .grid-3 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 700px) {
+      .grid-3 {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    .stat-card {
+      padding: 16px 18px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 4px;
+    }
+
+    .stat-card.gold-accent {
+      border-color: rgba(253, 230, 138, 0.24);
+      background: linear-gradient(180deg, rgba(251, 191, 36, 0.06) 0%, rgba(19, 34, 65, 0.62) 100%);
+    }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .stat-value-row {
+      display: flex;
+      align-items: baseline;
+      gap: 7px;
+      margin: 2px 0;
+    }
+
+    .stat-number {
+      font-size: 30px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      line-height: 1.1;
+    }
+
+    .num-ice { color: var(--ice); }
+    .num-gold { color: var(--gold); }
+    .num-white { color: var(--text-bright); }
+
+    .stat-unit {
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+
+    .stat-sub {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    /* Полоса прогресса */
+    .progress-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .progress-track-wrap {
+      position: relative;
+      padding: 8px 0 4px;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 16px;
+      border-radius: 9999px;
+      background: rgba(6, 11, 24, 0.92);
+      border: 1px solid rgba(186, 230, 253, 0.16);
+      padding: 2px;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .bar-seg-now {
+      height: 100%;
+      border-radius: 9999px 0 0 9999px;
+      background: linear-gradient(90deg, #38bdf8 0%, #7dd3fc 65%, #bae6fd 100%);
+      transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .bar-seg-now.full {
+      border-radius: 9999px;
+    }
+
+    .bar-seg-proj {
+      height: 100%;
+      background: linear-gradient(90deg, rgba(251, 191, 36, 0.72) 0%, rgba(253, 230, 138, 0.52) 100%);
+      transition: width 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .bar-seg-proj.rounded-end {
+      border-radius: 0 9999px 9999px 0;
+    }
+
+    .bar-marker {
+      position: absolute;
+      top: 2px;
+      transform: translateX(-50%);
+      pointer-events: none;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      transition: left 0.35s ease;
+    }
+
+    .bar-marker-line {
+      width: 2px;
+      height: 28px;
+      border-radius: 2px;
+    }
+
+    .marker-soft .bar-marker-line { background: rgba(94, 234, 212, 0.85); }
+    .marker-char .bar-marker-line { background: rgba(186, 230, 253, 0.88); }
+
+    .progress-legend {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .legend-group {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .legend-item {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .swatch {
+      width: 10px;
+      height: 10px;
+      border-radius: 3px;
+      display: inline-block;
+    }
+
+    /* 3 карточки вех под полосой */
+    .milestone-card {
+      padding: 12px 14px;
+      border-radius: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .milestone-title {
+      font-size: 11.5px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 2px;
+    }
+
+    .milestone-meta {
+      font-size: 12px;
+      color: #cbd5e1;
+      display: block;
+    }
+
+    .milestone-pct {
+      font-size: 13px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+
+    /* =========================================================
+       Сворачиваемые секции (Accordion)
+       ========================================================= */
+    .section-card {
+      overflow: hidden;
+    }
+
+    .section-header {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 18px 20px;
+      text-align: left;
+      transition: background 0.18s ease;
+    }
+
+    @media (min-width: 640px) {
+      .section-header {
+        padding: 20px 24px;
+      }
+    }
+
+    .section-header:hover {
+      background: rgba(125, 211, 252, 0.04);
+    }
+
+    .section-header-left {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+      min-width: 0;
+    }
+
+    .section-icon {
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .icon-ice {
+      background: rgba(56, 189, 248, 0.15);
+      border: 1px solid rgba(125, 211, 252, 0.28);
+      color: var(--ice);
+    }
+
+    .icon-gold {
+      background: rgba(251, 191, 36, 0.14);
+      border: 1px solid rgba(253, 230, 138, 0.28);
+      color: var(--gold);
+    }
+
+    .icon-teal {
+      background: rgba(20, 184, 166, 0.15);
+      border: 1px solid rgba(94, 234, 212, 0.28);
+      color: var(--teal);
+    }
+
+    .icon-indigo {
+      background: rgba(99, 102, 241, 0.16);
+      border: 1px solid rgba(165, 180, 252, 0.28);
+      color: #c7d2fe;
+    }
+
+    .section-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-bright);
+    }
+
+    .section-desc {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 2px;
+    }
+
+    .section-header-right {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      flex-shrink: 0;
+    }
+
+    .section-summary-pill {
+      display: none;
+      padding: 4px 10px;
+      border-radius: 9999px;
+      font-size: 11.5px;
+      font-weight: 600;
+      background: rgba(15, 23, 42, 0.7);
+      border: 1px solid rgba(186, 230, 253, 0.14);
+      color: var(--ice-light);
+    }
+
+    @media (min-width: 640px) {
+      .section-summary-pill {
+        display: inline-flex;
+      }
+    }
+
+    .chevron {
+      width: 18px;
+      height: 18px;
+      color: var(--text-muted);
+      transition: transform 0.25s ease;
+    }
+
+    .section-card.collapsed .chevron {
+      transform: rotate(-90deg);
+    }
+
+    .section-body-wrap {
+      display: grid;
+      grid-template-rows: 1fr;
+      transition: grid-template-rows 0.28s ease;
+    }
+
+    .section-card.collapsed .section-body-wrap {
+      grid-template-rows: 0fr;
+    }
+
+    .section-body-inner {
+      overflow: hidden;
+    }
+
+    .section-content {
+      padding: 4px 20px 22px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      border-top: 1px solid rgba(186, 230, 253, 0.08);
+      padding-top: 18px;
+    }
+
+    @media (min-width: 640px) {
+      .section-content {
+        padding: 20px 24px 24px;
+      }
+    }
+
+    /* =========================================================
+       Поля ввода, селекторы, переключатели
+       ========================================================= */
+    .grid-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+    }
+
+    @media (min-width: 720px) {
+      .grid-2 {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .field-box {
+      padding: 15px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      transition: border-color 0.2s ease;
+    }
+
+    .field-box:focus-within {
+      border-color: var(--border-ice-strong);
+    }
+
+    .field-label {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--ice-light);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+
+    .field-hint {
+      font-size: 11.5px;
+      color: var(--text-muted);
+    }
+
+    .text-input,
+    .select-input {
+      width: 100%;
+      background: var(--glass-input);
+      border: 1px solid rgba(186, 230, 253, 0.16);
+      border-radius: var(--radius-md);
+      padding: 10px 13px;
+      font-size: 14px;
+      font-family: inherit;
+      color: var(--text-bright);
+      outline: none;
+      transition: border-color 0.18s ease, box-shadow 0.18s ease;
+    }
+
+    .text-input:focus,
+    .select-input:focus {
+      border-color: rgba(125, 211, 252, 0.55);
+      box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.12);
+    }
+
+    .select-input option {
+      background: #0c162d;
+      color: #f8fafc;
+    }
+
+    .big-num-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--text-bright);
+      outline: none;
+      font-family: inherit;
+    }
+
+    .big-num-input::placeholder {
+      color: var(--text-dim);
+    }
+
+    /* Сегментированные кнопки (выбор созвездий, пробуждений, гаранта) */
+    .seg-grid-2 {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .seg-grid-4 {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 8px;
+    }
+
+    .seg-grid-5 {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 7px;
+    }
+
+    .seg-btn {
+      padding: 9px 8px;
+      border-radius: var(--radius-md);
+      font-size: 12px;
+      font-weight: 600;
+      border: 1px solid rgba(186, 230, 253, 0.14);
+      background: rgba(8, 15, 31, 0.58);
+      color: #cbd5e1;
+      transition: all 0.16s ease;
+      text-align: center;
+      min-height: 38px;
+    }
+
+    .seg-btn:hover {
+      border-color: rgba(125, 211, 252, 0.35);
+      color: var(--text-bright);
+    }
+
+    .seg-btn.active-ice {
+      background: rgba(56, 189, 248, 0.22);
+      border-color: rgba(125, 211, 252, 0.55);
+      color: var(--ice-light);
+      box-shadow: 0 4px 14px rgba(14, 165, 233, 0.18);
+    }
+
+    .seg-btn.active-gold {
+      background: rgba(251, 191, 36, 0.2);
+      border-color: rgba(253, 230, 138, 0.55);
+      color: var(--gold-light);
+      box-shadow: 0 4px 14px rgba(251, 191, 36, 0.15);
+    }
+
+    .seg-btn.active-fuchsia {
+      background: rgba(217, 70, 239, 0.2);
+      border-color: rgba(240, 171, 252, 0.52);
+      color: #fae8ff;
+    }
+
+    /* Тумблер (Switch) для сигнатурного оружия */
+    .switch-banner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 14px 16px;
+      border-radius: var(--radius-lg);
+      background: rgba(251, 191, 36, 0.08);
+      border: 1px solid rgba(253, 230, 138, 0.26);
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .switch-banner.off {
+      background: rgba(15, 23, 42, 0.52);
+      border-color: rgba(148, 163, 184, 0.18);
+    }
+
+    .switch-track {
+      width: 48px;
+      height: 26px;
+      border-radius: 9999px;
+      background: rgba(148, 163, 184, 0.28);
+      position: relative;
+      transition: background 0.22s ease;
+      flex-shrink: 0;
+    }
+
+    .switch-banner.on .switch-track {
+      background: linear-gradient(90deg, #38bdf8, #fbbf24);
+    }
+
+    .switch-thumb {
+      width: 20px;
+      height: 20px;
+      border-radius: 9999px;
+      background: #ffffff;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.22s ease;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    }
+
+    .switch-banner.on .switch-thumb {
+      transform: translateX(22px);
+    }
+
+    .weapon-fields-wrap {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      transition: opacity 0.22s ease;
+    }
+
+    .weapon-fields-wrap.disabled {
+      opacity: 0.42;
+      pointer-events: none;
+    }
+
+    .info-callout {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(56, 189, 248, 0.08);
+      border: 1px solid rgba(125, 211, 252, 0.18);
+      font-size: 12px;
+      color: #cbd5e1;
+      line-height: 1.5;
+    }
+
+    /* Ползунок дней */
+    .days-control-box {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .days-top-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+    }
+
+    .days-input-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: var(--glass-input);
+      border: 1px solid rgba(186, 230, 253, 0.2);
+      border-radius: var(--radius-md);
+      padding: 6px 12px;
+      width: 116px;
+    }
+
+    .days-input-group input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--text-bright);
+      font-size: 16px;
+      font-weight: 700;
+      outline: none;
+      font-family: inherit;
+    }
+
+    input[type="range"] {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 100%;
+      height: 6px;
+      border-radius: 9999px;
+      background: rgba(125, 211, 252, 0.2);
+      outline: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 18px;
+      height: 18px;
+      border-radius: 9999px;
+      background: linear-gradient(135deg, #bae6fd, #fbbf24);
+      border: 2px solid #070d1b;
+      cursor: pointer;
+      box-shadow: 0 0 10px rgba(125, 211, 252, 0.55);
+    }
+
+    .preset-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .preset-btn {
+      padding: 5px 10px;
+      border-radius: 9px;
+      font-size: 11.5px;
+      font-weight: 500;
+      background: rgba(8, 15, 31, 0.65);
+      border: 1px solid rgba(186, 230, 253, 0.14);
+      color: #cbd5e1;
+      transition: all 0.15s ease;
+    }
+
+    .preset-btn:hover {
+      border-color: rgba(125, 211, 252, 0.4);
+      color: var(--ice-light);
+    }
+
+    /* Карточки пассивного дохода */
+    .passive-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    @media (min-width: 680px) {
+      .passive-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    .passive-card {
+      padding: 14px 15px;
+      border-radius: 16px;
+      border: 1px solid rgba(186, 230, 253, 0.12);
+      background: rgba(19, 34, 65, 0.5);
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      text-align: left;
+      transition: all 0.18s ease;
+    }
+
+    .passive-card:hover {
+      border-color: rgba(125, 211, 252, 0.3);
+    }
+
+    .passive-card.active-ice {
+      background: rgba(56, 189, 248, 0.13);
+      border-color: rgba(125, 211, 252, 0.42);
+    }
+
+    .passive-card.active-gold {
+      background: rgba(251, 191, 36, 0.12);
+      border-color: rgba(253, 230, 138, 0.42);
+    }
+
+    .checkbox-box {
+      width: 22px;
+      height: 22px;
+      border-radius: 7px;
+      border: 1.5px solid rgba(125, 211, 252, 0.38);
+      background: rgba(8, 15, 31, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: all 0.16s ease;
+    }
+
+    .checkbox-box.checked-ice {
+      background: var(--ice);
+      border-color: var(--ice-light);
+      color: #070d1b;
+    }
+
+    .checkbox-box.checked-gold {
+      background: var(--gold);
+      border-color: var(--gold-light);
+      color: #070d1b;
+    }
+
+    /* =========================================================
+       4. План зачистки и источники Камней Истока
+       ========================================================= */
+    .filter-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+    }
+
+    .filter-tab {
+      padding: 7px 13px;
+      border-radius: 11px;
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--text-muted);
+      border: 1px solid transparent;
+      transition: all 0.16s ease;
+    }
+
+    .filter-tab:hover {
+      color: var(--text-bright);
+    }
+
+    .filter-tab.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: rgba(125, 211, 252, 0.38);
+      color: var(--ice-light);
+    }
+
+    .plan-total-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 14px;
+      border-radius: 14px;
+      background: rgba(8, 15, 31, 0.65);
+      border: 1px solid rgba(253, 230, 138, 0.22);
+      font-size: 12px;
+    }
+
+    /* Форма добавления своего источника */
+    .add-form {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      padding: 13px;
+    }
+
+    @media (min-width: 720px) {
+      .add-form {
+        grid-template-columns: 1fr 175px 125px auto;
+        align-items: center;
+      }
+    }
+
+    /* Список строк источников */
+    .source-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .source-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      padding: 12px 14px;
+      border-radius: 14px;
+      background: rgba(15, 27, 52, 0.56);
+      border: 1px solid rgba(186, 230, 253, 0.11);
+      transition: all 0.16s ease;
+    }
+
+    .source-row.selected {
+      background: rgba(14, 42, 74, 0.56);
+      border-color: rgba(125, 211, 252, 0.36);
+    }
+
+    .source-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 210px;
+    }
+
+    .source-info {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .source-title {
+      font-size: 13.5px;
+      font-weight: 500;
+      color: var(--text-main);
+    }
+
+    .source-row.selected .source-title {
+      color: var(--text-bright);
+    }
+
+    .source-cat {
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .source-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-left: auto;
+    }
+
+    .primos-inline-edit {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(7, 13, 27, 0.78);
+      border: 1px solid rgba(186, 230, 253, 0.18);
+      border-radius: 10px;
+      padding: 5px 10px;
+    }
+
+    .primos-inline-edit:focus-within {
+      border-color: rgba(253, 230, 138, 0.55);
+    }
+
+    .primos-inline-edit input {
+      width: 66px;
+      background: transparent;
+      border: none;
+      text-align: right;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--gold);
+      outline: none;
+      font-family: inherit;
+    }
+
+    .delete-btn {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-muted);
+      transition: all 0.16s ease;
+    }
+
+    .delete-btn:hover {
+      background: rgba(244, 63, 94, 0.16);
+      color: var(--rose);
+    }
+
+    /* Уведомление (Toast) */
+    #toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 60;
+      pointer-events: none;
+      opacity: 0;
+      transform: translateY(12px);
+      transition: all 0.28s ease;
+    }
+
+    #toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .toast-inner {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 11px 16px;
+      border-radius: 14px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--ice-light);
+      border-color: rgba(125, 211, 252, 0.35);
+    }
+
+    footer {
+      text-align: center;
+      font-size: 12px;
+      color: var(--text-dim);
+      padding-top: 6px;
+    }
   </style>
 </head>
-<body class="antialiased selection:bg-sky-400/30 selection:text-sky-100">
+<body>
 
-  <!-- Фоновое звёздное небо -->
+  <!-- Фоновые звёзды -->
   <div id="starfield" aria-hidden="true"></div>
 
   <!-- Всплывающее уведомление -->
-  <div id="toast" class="fixed bottom-5 right-5 z-50 pointer-events-none opacity-0 translate-y-3 transition-all duration-300">
-    <div class="glass-card px-4 py-3 rounded-2xl border-sky-300/30 flex items-center gap-2.5 text-sm text-sky-100 shadow-2xl">
-      <svg class="w-4 h-4 text-amber-300 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+  <div id="toast" role="status" aria-live="polite">
+    <div class="glass-card toast-inner">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#fde68a" stroke-width="2.4">
+        <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
       </svg>
-      <span id="toast-message">Сохранено</span>
+      <span id="toast-text">Сохранено</span>
     </div>
   </div>
 
-  <!-- Главный контейнер -->
-  <main class="relative z-10 max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-11 space-y-7">
+  <main class="container">
 
     <!-- Шапка -->
-    <header class="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+    <header class="page-header">
       <div>
-        <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-sky-400/10 border border-sky-300/20 text-sky-200 text-xs font-medium mb-3">
-          <svg class="w-3.5 h-3.5 text-amber-300" viewBox="0 0 24 24" fill="currentColor">
+        <div class="eyebrow">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="#fde68a">
             <path d="M12 2L14.8 9.2L22 12L14.8 14.8L12 22L9.2 14.8L2 12L9.2 9.2L12 2Z" />
           </svg>
-          <span>Универсальный планировщик молитв · Genshin Impact</span>
+          <span>Genshin Impact · Персонаж + Сигнатурное оружие · Работает офлайн</span>
         </div>
-        <h1 class="text-2xl sm:text-4xl font-bold tracking-tight text-white">
-          Калькулятор <span class="text-transparent bg-clip-text bg-gradient-to-r from-sky-200 via-cyan-200 to-amber-200">Камней Истока</span> и Гаранта
+        <h1 class="page-title">
+          Калькулятор <span class="title-gradient">Молитв и Гаранта</span>
         </h1>
-        <p class="mt-2 text-sm text-slate-300/90 max-w-2xl leading-relaxed">
-          Настрой цель по созвездиям, учти счётчик «Пленительного сияния», пассивный доход и отметь источники Камней Истока, которые планируешь закрыть. Все расчёты сохраняются автоматически.
+        <p class="page-subtitle">
+          Точный расчёт накоплений на персонажа (с учётом «Пленительного сияния») и его сигнатурное оружие (актуальный «Путь воплощения» с 1 Очком судьбы). Все данные сохраняются локально в браузере.
         </p>
       </div>
 
-      <!-- Кнопки быстрого сброса -->
-      <div class="flex flex-wrap items-center gap-2 shrink-0">
-        <button type="button" id="uncheck-all-btn"
-          class="px-3.5 py-2 rounded-xl text-xs font-medium bg-sky-400/10 hover:bg-sky-400/20 text-sky-200 border border-sky-300/20 transition flex items-center gap-1.5 active:scale-95">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <div class="header-actions">
+        <button type="button" id="btn-uncheck-plan" class="btn btn-ice">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
           </svg>
-          <span>Сбросить отметки</span>
+          <span>Очистить план</span>
         </button>
 
-        <button type="button" id="full-reset-btn"
-          class="px-3.5 py-2 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-rose-500/15 text-slate-300 hover:text-rose-200 border border-slate-700/70 hover:border-rose-400/30 transition flex items-center gap-1.5 active:scale-95">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <button type="button" id="btn-reset-all" class="btn btn-ghost">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
           </svg>
-          <span id="full-reset-label">Сбросить всё до нуля</span>
+          <span id="reset-all-label">Сбросить всё</span>
         </button>
       </div>
     </header>
 
-    <!-- 1. Итоговая сводка (Live Summary Dashboard) -->
-    <section class="glass-card rounded-3xl p-5 sm:p-7 space-y-5 border-sky-300/20" aria-labelledby="summary-heading">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div class="space-y-1">
-          <div class="flex flex-wrap items-center gap-2">
-            <h2 id="summary-heading" class="text-lg sm:text-xl font-semibold text-white">
-              Цель: <span id="display-target-name" class="text-sky-200">Желанный персонаж</span>
+    <!-- =========================================================
+         1. ВЕРХНЯЯ СВОДНАЯ ПАНЕЛЬ (DASHBOARD)
+         ========================================================= -->
+    <section class="glass-card dashboard" aria-labelledby="dash-title">
+      <div class="dash-top">
+        <div>
+          <div class="target-title-row">
+            <h2 id="dash-title" class="target-heading">
+              Цель: <span id="dash-char-name">Царица</span>
             </h2>
-            <span id="display-target-const" class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-amber-300/15 text-amber-200 border border-amber-300/30">
-              С0 (1 копия)
-            </span>
+            <span id="dash-char-badge" class="badge badge-ice">C0 (1 копия)</span>
+            <span id="dash-weapon-badge" class="badge badge-gold">R1 Сигнатурка</span>
           </div>
-          <p id="summary-subtitle" class="text-xs text-slate-400">
-            Учитываются текущие накопления, открученные молитвы, пассивный доход и выбранные источники
+          <p class="stat-sub" style="margin-top: 4px;">
+            Сравнение твоего кошелька и прогноза с точным числом круток, нужным для 100% гаранта
           </p>
         </div>
 
-        <!-- Статус-бейдж результата -->
-        <div id="status-badge" class="px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium flex items-center gap-2 shrink-0">
-          <span id="status-badge-dot" class="w-2 h-2 rounded-full bg-sky-300"></span>
-          <span id="status-badge-text">Заполни поля ниже для точного прогноза</span>
+        <div id="dash-status-pill" class="status-pill status-need">
+          <span class="status-dot"></span>
+          <span id="dash-status-text">Расчёт цели...</span>
         </div>
       </div>
 
-      <!-- Ключевые показатели: Сейчас vs Прогноз -->
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
-        <div class="glass-subcard rounded-2xl p-4 flex flex-col justify-between">
-          <span class="text-xs text-slate-400">Доступно прямо сейчас</span>
-          <div class="mt-1 flex items-baseline gap-2">
-            <span id="stat-current-pulls" class="text-2xl sm:text-3xl font-bold text-sky-300">0</span>
-            <span class="text-xs text-slate-300">круток</span>
+      <!-- 3 главные карточки статистики -->
+      <div class="grid-3">
+        <!-- Карточка A -->
+        <div class="glass-subcard stat-card">
+          <span class="stat-label">В кошельке сейчас</span>
+          <div class="stat-value-row">
+            <span id="stat-wallet-pulls" class="stat-number num-ice">0</span>
+            <span class="stat-unit">круток</span>
           </div>
-          <span id="stat-current-breakdown" class="text-[11px] text-slate-400 mt-1">0 в запасе + 0 откручено</span>
+          <span id="stat-pity-breakdown" class="stat-sub">Откручено: Персонаж 0/90 • Оружие 0/80</span>
         </div>
 
-        <div class="glass-subcard rounded-2xl p-4 flex flex-col justify-between border-amber-300/20">
-          <span class="text-xs text-amber-200/85">Итоговый прогноз к концу баннера</span>
-          <div class="mt-1 flex items-baseline gap-2">
-            <span id="stat-projected-pulls" class="text-2xl sm:text-3xl font-bold text-amber-200">0</span>
-            <span class="text-xs text-slate-300">круток</span>
+        <!-- Карточка B -->
+        <div class="glass-subcard stat-card gold-accent">
+          <span class="stat-label" style="color: var(--gold);">Итоговый прогноз к концу баннера</span>
+          <div class="stat-value-row">
+            <span id="stat-projected-pulls" class="stat-number num-gold">0</span>
+            <span class="stat-unit">круток</span>
           </div>
-          <span id="stat-projected-breakdown" class="text-[11px] text-slate-400 mt-1">+0 пассивно и +0 из плана</span>
+          <span id="stat-projected-sub" class="stat-sub">+0 пассивно и +0 из плана</span>
         </div>
 
-        <div class="glass-subcard rounded-2xl p-4 flex flex-col justify-between">
-          <span class="text-xs text-slate-400">Порог 100% гаранта на цель</span>
-          <div class="mt-1 flex items-baseline gap-2">
-            <span id="stat-guarantee-cap" class="text-2xl sm:text-3xl font-bold text-white">180</span>
-            <span class="text-xs text-slate-300">круток макс.</span>
+        <!-- Карточка C -->
+        <div class="glass-subcard stat-card">
+          <span class="stat-label">Нужно из кошелька (100% гарант)</span>
+          <div class="stat-value-row">
+            <span id="stat-need-total" class="stat-number num-white">340</span>
+            <span class="stat-unit">круток макс.</span>
           </div>
-          <span id="stat-guarantee-note" class="text-[11px] text-sky-200/80 mt-1">Статус: 50/50 · Сияние: 0/3</span>
+          <span id="stat-need-breakdown" class="stat-sub">Персонаж: 180 кр. • Оружие: 160 кр.</span>
         </div>
       </div>
 
-      <!-- Прогресс-бар к Мягкому (77), Жёсткому (90) и Полному гаранту -->
-      <div class="space-y-3 pt-1">
-        <div class="relative pt-2 pb-1">
-          <div class="w-full h-4 rounded-full bg-slate-950/90 border border-sky-200/15 overflow-hidden p-0.5 flex relative">
-            <!-- Текущий прогресс (голубой градиент) -->
-            <div id="bar-current" class="h-full rounded-l-full bg-gradient-to-r from-sky-400 via-cyan-300 to-sky-200 transition-all duration-500 ease-out z-10" style="width: 0%"></div>
-            <!-- Прогнозный прогресс (золотисто-небесный полупрозрачный) -->
-            <div id="bar-projected" class="h-full bg-gradient-to-r from-amber-300/45 to-sky-300/35 transition-all duration-500 ease-out" style="width: 0%"></div>
+      <!-- Визуальная полоса прогресса -->
+      <div class="progress-wrapper">
+        <div class="progress-track-wrap">
+          <div class="progress-track">
+            <div id="bar-now" class="bar-seg-now" style="width: 0%;"></div>
+            <div id="bar-proj" class="bar-seg-proj" style="width: 0%;"></div>
           </div>
 
-          <!-- Маркер 77 (Мягкий гарант) -->
-          <div id="marker-77" class="absolute top-0 flex flex-col items-center pointer-events-none transition-all duration-300" style="left: 42.78%;">
-            <div class="w-0.5 h-7 bg-teal-300/75"></div>
+          <!-- Отметка: Ожидаемое среднее (мягкий гарант) -->
+          <div id="marker-soft" class="bar-marker marker-soft" style="left: 50%;" title="Ожидаемое среднее (мягкий гарант)">
+            <div class="bar-marker-line"></div>
           </div>
 
-          <!-- Маркер 90 (Жёсткий гарант первой 5★) -->
-          <div id="marker-90" class="absolute top-0 flex flex-col items-center pointer-events-none transition-all duration-300" style="left: 50%;">
-            <div class="w-0.5 h-7 bg-amber-300/80"></div>
+          <!-- Отметка: Гарант персонажа (показывается, если выбраны оба) -->
+          <div id="marker-char" class="bar-marker marker-char" style="left: 52.9%;" title="100% гарант персонажа">
+            <div class="bar-marker-line"></div>
           </div>
         </div>
 
-        <!-- Легенда прогресс-бара -->
-        <div class="flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400">
-          <div class="flex flex-wrap items-center gap-4">
-            <span class="inline-flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm bg-sky-300"></span>
+        <div class="progress-legend">
+          <div class="legend-group">
+            <span class="legend-item">
+              <span class="swatch" style="background: #7dd3fc;"></span>
               <span>Есть сейчас</span>
             </span>
-            <span class="inline-flex items-center gap-1.5">
-              <span class="w-2.5 h-2.5 rounded-sm bg-amber-300/50"></span>
-              <span>Прогноз (пассив + план)</span>
+            <span class="legend-item">
+              <span class="swatch" style="background: rgba(251, 191, 36, 0.72);"></span>
+              <span>Прогноз: пассив + план</span>
             </span>
           </div>
-          <div class="flex flex-wrap items-center gap-3">
-            <span class="text-teal-300">Мягкий гарант: 77</span>
-            <span class="text-amber-200">Жёсткий 5★: 90</span>
-            <span id="legend-max-cap" class="text-sky-200">Полный гарант: 180</span>
+
+          <div class="legend-group">
+            <span id="legend-soft" style="color: var(--teal);">Ожидаемое среднее: ~218 кр.</span>
+            <span id="legend-char" style="color: var(--ice-light);">Гарант персонажа: 180 кр.</span>
+            <span id="legend-total" style="color: var(--gold);">100% гарант цели: 340 кр.</span>
           </div>
         </div>
+      </div>
 
-        <!-- Карточки трёх вех -->
-        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
-          <div class="glass-subcard rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-            <div>
-              <span class="text-[11px] text-teal-200 font-medium block">Мягкий гарант (77 кр.)</span>
-              <span id="milestone-77-desc" class="text-xs text-slate-300">Осталось: 77 кр.</span>
-            </div>
-            <span id="milestone-77-pct" class="text-xs font-semibold text-teal-300">0%</span>
+      <!-- 3 компактные карточки-вехи -->
+      <div class="grid-3">
+        <!-- Веха 1: Персонаж -->
+        <div class="glass-subcard milestone-card">
+          <div>
+            <span class="milestone-title" style="color: var(--ice-light);">Персонаж (100% гарант)</span>
+            <span id="mile-char-text" class="milestone-meta">Нужно 180 кр. • Осталось: 180</span>
           </div>
+          <span id="mile-char-pct" class="milestone-pct" style="color: var(--ice);">0%</span>
+        </div>
 
-          <div class="glass-subcard rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-            <div>
-              <span class="text-[11px] text-amber-200 font-medium block">Жёсткий гарант 5★ (90 кр.)</span>
-              <span id="milestone-90-desc" class="text-xs text-slate-300">Осталось: 90 кр.</span>
-            </div>
-            <span id="milestone-90-pct" class="text-xs font-semibold text-amber-300">0%</span>
+        <!-- Веха 2: Оружие -->
+        <div class="glass-subcard milestone-card">
+          <div>
+            <span class="milestone-title" style="color: var(--gold);">Сигнатурное оружие (100% гарант)</span>
+            <span id="mile-weapon-text" class="milestone-meta">Нужно 160 кр. • Осталось: 160</span>
           </div>
+          <span id="mile-weapon-pct" class="milestone-pct" style="color: var(--gold);">0%</span>
+        </div>
 
-          <div class="glass-subcard rounded-xl px-3.5 py-2.5 flex items-center justify-between">
-            <div>
-              <span id="milestone-full-title" class="text-[11px] text-sky-200 font-medium block">100% гарант цели (180 кр.)</span>
-              <span id="milestone-full-desc" class="text-xs text-slate-300">Осталось: 180 кр.</span>
-            </div>
-            <span id="milestone-full-pct" class="text-xs font-semibold text-sky-300">0%</span>
+        <!-- Веха 3: Итоговая цель -->
+        <div class="glass-subcard milestone-card">
+          <div>
+            <span class="milestone-title" style="color: var(--teal);">Итоговый 100% гарант цели</span>
+            <span id="mile-total-text" class="milestone-meta">Осталось: 340 кр.</span>
           </div>
+          <span id="mile-total-pct" class="milestone-pct" style="color: var(--teal);">0%</span>
         </div>
       </div>
     </section>
 
-    <!-- 2. Настройки цели, гаранта и Пленительного сияния -->
-    <section class="glass-card rounded-3xl p-5 sm:p-6 space-y-5" aria-labelledby="goal-settings-heading">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-amber-300/15 border border-amber-300/25 flex items-center justify-center text-amber-200 shrink-0">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
-            <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+    <!-- =========================================================
+         2. БЛОК 1: ПЕРСОНАЖ
+         ========================================================= -->
+    <section class="glass-card section-card" data-section="char">
+      <button type="button" class="section-header" aria-expanded="true">
+        <div class="section-header-left">
+          <div class="section-icon icon-ice">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="section-title">1. Персонаж: цель, гарант и Пленительное сияние</h2>
+            <p class="section-desc">Выбор созвездия, текущее пити баннера персонажа и серия проигрышей 50/50</p>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <span id="pill-char-summary" class="section-summary-pill">Царица · C0 · 0/90</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </div>
-        <div>
-          <h2 id="goal-settings-heading" class="text-base sm:text-lg font-semibold text-white">1. Цель, гарант и Пленительное сияние</h2>
-          <p class="text-xs text-slate-400">Настрой параметры баннера, созвездий и счётчик проигрышей 50/50</p>
-        </div>
-      </div>
+      </button>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <!-- Имя персонажа -->
-        <div class="glass-subcard rounded-2xl p-4 space-y-2 focus-within:border-sky-300/50 transition">
-          <label for="input-char-name" class="block text-xs font-medium text-sky-200">
-            Кого крутим (имя персонажа)
-          </label>
-          <input type="text" id="input-char-name" placeholder="Например: Царица, Фурина, Флинс..."
-            class="w-full bg-slate-950/60 border border-sky-200/15 rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-300/50" />
-        </div>
+      <div class="section-body-wrap">
+        <div class="section-body-inner">
+          <div class="section-content">
+            <div class="grid-2">
+              <!-- Имя персонажа -->
+              <div class="glass-subcard field-box">
+                <label for="input-char-name" class="field-label">Имя персонажа</label>
+                <input type="text" id="input-char-name" class="text-input" placeholder="Например: Царица, Фурина, Флинс..." />
+                <span class="field-hint">Отображается в заголовке верхней панели</span>
+              </div>
 
-        <!-- Желаемое созвездие -->
-        <div class="glass-subcard rounded-2xl p-4 space-y-2">
-          <span class="block text-xs font-medium text-sky-200">Желаемое созвездие (количество копий)</span>
-          <div class="grid grid-cols-7 gap-1.5" id="constellation-selector">
-            <button type="button" data-const="0" class="const-btn py-2 rounded-xl text-xs font-semibold border transition">С0</button>
-            <button type="button" data-const="1" class="const-btn py-2 rounded-xl text-xs font-semibold border transition">С1</button>
-            <button type="button" data-const="2" class="const-btn py-2 rounded-xl text-xs font-semibold border transition">С2</button>
-            <button type="button" data-const="3" class="const-btn py-2 rounded-xl text-xs font-semibold border transition">С3</button>
-            <button type="button" data-const="4" class="const-btn py-2 rounded-xl text-xs font-semibold border transition">С4</button>
-            <button type="button" data-const="5" class="const-btn py-2 rounded-xl text-xs font-semibold border transition">С5</button>
-            <button type="button" data-const="6" class="const-btn py-2 rounded-xl text-xs font-semibold border transition">С6</button>
-          </div>
-          <span id="const-helper" class="text-[11px] text-slate-400 block">С0 — базовый персонаж (1 ивентовая 5★ копия)</span>
-        </div>
+              <!-- Выбор созвездий -->
+              <div class="glass-subcard field-box">
+                <label for="select-char-const" class="field-label">Цель по созвездиям</label>
+                <select id="select-char-const" class="select-input">
+                  <option value="-1">Не нужен (только оружие)</option>
+                  <option value="0">C0 (1 копия)</option>
+                  <option value="1">C1 (2 копии)</option>
+                  <option value="2">C2 (3 копии)</option>
+                  <option value="3">C3 (4 копии)</option>
+                  <option value="4">C4 (5 копий)</option>
+                  <option value="5">C5 (6 копий)</option>
+                  <option value="6">C6 (7 копий)</option>
+                </select>
+                <span id="hint-char-const" class="field-hint">Базовый персонаж — 1 ивентовая 5★ копия</span>
+              </div>
 
-        <!-- Статус 50/50 vs 100% Гарант -->
-        <div class="glass-subcard rounded-2xl p-4 space-y-2.5">
-          <span class="block text-xs font-medium text-sky-200">Текущий статус гаранта</span>
-          <div class="grid grid-cols-2 gap-2">
-            <button type="button" id="btn-guarantee-5050"
-              class="py-2.5 px-3 rounded-xl text-xs font-semibold border transition flex items-center justify-center gap-1.5">
-              <span>50/50</span>
-            </button>
-            <button type="button" id="btn-guarantee-100"
-              class="py-2.5 px-3 rounded-xl text-xs font-semibold border transition flex items-center justify-center gap-1.5">
-              <span>100% Гарант</span>
-            </button>
-          </div>
-          <span id="guarantee-helper" class="text-[11px] text-slate-400 block">
-            Последней 5★ был ивентовый герой — следующая легендарка идёт по 50/50.
-          </span>
-        </div>
+              <!-- Пити персонажа -->
+              <div class="glass-subcard field-box">
+                <label for="input-char-pity" class="field-label">
+                  <span>Откручено в баннере персонажа (пити)</span>
+                  <span style="color: var(--text-muted); font-weight: 500;">0–89</span>
+                </label>
+                <input type="number" id="input-char-pity" class="text-input" min="0" max="89" placeholder="0" />
+                <span id="hint-char-pity" class="field-hint">Мягкий гарант с 74-й (в среднем ~77), жёсткий — на 90-й</span>
+              </div>
 
-        <!-- Счётчик Пленительного сияния -->
-        <div class="glass-subcard rounded-2xl p-4 space-y-2.5">
-          <div class="flex items-center justify-between gap-2">
-            <span class="text-xs font-medium text-sky-200">«Пленительное сияние» (проигрышей 50/50 подряд)</span>
-            <span class="text-[10px] px-2 py-0.5 rounded-full bg-fuchsia-400/15 text-fuchsia-200 border border-fuchsia-300/25">
-              3 = Гарант сияния
-            </span>
-          </div>
-          <div class="grid grid-cols-4 gap-2" id="radiance-selector">
-            <button type="button" data-radiance="0" class="rad-btn py-2 rounded-xl text-xs font-semibold border transition">0</button>
-            <button type="button" data-radiance="1" class="rad-btn py-2 rounded-xl text-xs font-semibold border transition">1</button>
-            <button type="button" data-radiance="2" class="rad-btn py-2 rounded-xl text-xs font-semibold border transition">2 (~75%)</button>
-            <button type="button" data-radiance="3" class="rad-btn py-2 rounded-xl text-xs font-semibold border transition">3 (100%)</button>
-          </div>
-          <span id="radiance-helper" class="text-[11px] text-slate-400 block">
-            При 3 проигрышах 50/50 подряд следующий бросок 50/50 гарантированно спасёт сияние (макс. 90 круток).
-          </span>
-        </div>
-      </div>
+              <!-- Статус 50/50 vs 100% гарант -->
+              <div class="glass-subcard field-box">
+                <span class="field-label">Текущий статус гаранта</span>
+                <div class="seg-grid-2">
+                  <button type="button" id="btn-char-5050" class="seg-btn">50/50</button>
+                  <button type="button" id="btn-char-100" class="seg-btn">100% гарант</button>
+                </div>
+                <span id="hint-char-guarantee" class="field-hint">Следующая 5★ легендарка идёт по правилу 50/50</span>
+              </div>
+            </div>
 
-      <!-- Дней до конца нужного баннера -->
-      <div class="glass-subcard rounded-2xl p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div class="space-y-1">
-          <label for="input-days" class="block text-xs font-medium text-sky-200">
-            Дней до конца нужного баннера
-          </label>
-          <p class="text-[11px] text-slate-400">
-            На это количество дней умножается пассивный доход от ежедневок и Луны
-          </p>
-        </div>
-
-        <div class="flex flex-wrap items-center gap-2">
-          <div class="flex items-center bg-slate-950/70 border border-sky-200/20 rounded-xl px-3 py-1.5 w-28 focus-within:border-sky-300/60">
-            <input type="number" id="input-days" min="0" max="730" placeholder="42"
-              class="w-full bg-transparent text-base font-semibold text-white focus:outline-none" />
-            <span class="text-xs text-slate-400 ml-1">дн.</span>
-          </div>
-
-          <div class="flex flex-wrap gap-1.5">
-            <button type="button" data-days="14" class="days-preset px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-sky-400/15 text-slate-300 hover:text-sky-200 border border-sky-200/15 transition">14</button>
-            <button type="button" data-days="21" class="days-preset px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-sky-400/15 text-slate-300 hover:text-sky-200 border border-sky-200/15 transition">21</button>
-            <button type="button" data-days="42" class="days-preset px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-sky-400/15 text-slate-300 hover:text-sky-200 border border-sky-200/15 transition">42 (патч)</button>
-            <button type="button" data-days="63" class="days-preset px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-sky-400/15 text-slate-300 hover:text-sky-200 border border-sky-200/15 transition">63</button>
-            <button type="button" data-days="84" class="days-preset px-2.5 py-2 rounded-xl text-xs font-medium bg-slate-900/80 hover:bg-sky-400/15 text-slate-300 hover:text-sky-200 border border-sky-200/15 transition">84 (2 патча)</button>
+            <!-- Пленительное сияние -->
+            <div class="glass-subcard field-box">
+              <div class="field-label">
+                <span>«Пленительное сияние» (серия проигрышей 50/50 подряд)</span>
+                <span class="badge badge-fuchsia" style="font-size: 11px; padding: 2px 8px;">3/3 = Гарант сияния</span>
+              </div>
+              <div class="seg-grid-4" id="radiance-group">
+                <button type="button" data-rad="0" class="seg-btn">0 / 3</button>
+                <button type="button" data-rad="1" class="seg-btn">1 / 3</button>
+                <button type="button" data-rad="2" class="seg-btn">2 / 3 (~75%)</button>
+                <button type="button" data-rad="3" class="seg-btn">3 / 3 (100%)</button>
+              </div>
+              <span id="hint-radiance" class="field-hint">
+                При 3/3 следующий бросок 50/50 гарантированно спасёт «Пленительное сияние» (макс. 90 круток вместо 180).
+              </span>
+            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- 3. Текущие накопления и пассивный доход -->
-    <section class="glass-card rounded-3xl p-5 sm:p-6 space-y-5" aria-labelledby="wallet-heading">
-      <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-xl bg-sky-400/15 border border-sky-300/25 flex items-center justify-center text-sky-300 shrink-0">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L15.5 8.5L22 12L15.5 15.5L12 22L8.5 15.5L2 12L8.5 8.5L12 2Z" />
+    <!-- =========================================================
+         3. БЛОК 2: СИГНАТУРНОЕ ОРУЖИЕ (ПУТЬ ВОПЛОЩЕНИЯ)
+         ========================================================= -->
+    <section class="glass-card section-card" data-section="weapon">
+      <button type="button" class="section-header" aria-expanded="true">
+        <div class="section-header-left">
+          <div class="section-icon icon-gold">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M14.5 4.5l5 5-9.5 9.5-5.5 1 1-5.5 9-10zM12 7l5 5" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="section-title">2. Сигнатурное оружие (Путь воплощения)</h2>
+            <p class="section-desc">Отдельный счётчик пити, пробуждения R1–R5 и Очко судьбы (макс. 1)</p>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <span id="pill-weapon-summary" class="section-summary-pill" style="color: var(--gold);">R1 · 0/80 · Очко 0/1</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
           </svg>
         </div>
-        <div>
-          <h2 id="wallet-heading" class="text-base sm:text-lg font-semibold text-white">2. Текущие накопления и пассивный доход</h2>
-          <p class="text-xs text-slate-400">Введи ресурсы на аккаунте и отметь активные подписки</p>
-        </div>
-      </div>
+      </button>
 
-      <!-- 4 поля кошелька -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
-        <div class="glass-subcard rounded-2xl p-3.5 focus-within:border-sky-300/50 transition">
-          <label for="input-primos" class="block text-xs font-medium text-sky-200/90 mb-1.5">Камни Истока</label>
-          <input type="number" id="input-primos" min="0" max="999999" placeholder="0"
-            class="w-full bg-transparent text-lg font-semibold text-white placeholder-slate-500 focus:outline-none" />
-          <span id="hint-primos" class="text-[11px] text-slate-400 mt-1 block">= 0 круток</span>
-        </div>
+      <div class="section-body-wrap">
+        <div class="section-body-inner">
+          <div class="section-content">
+            <!-- Заметный переключатель включения оружия -->
+            <div id="weapon-toggle-banner" class="switch-banner on" role="switch" aria-checked="true" tabindex="0">
+              <div>
+                <div style="font-size: 14px; font-weight: 600; color: var(--text-bright);">
+                  Добавить сигнатурное оружие в расчёт
+                </div>
+                <div id="weapon-toggle-sub" style="font-size: 12px; color: var(--gold); margin-top: 2px;">
+                  Включено — крутки на сигнатурку суммируются с целью персонажа
+                </div>
+              </div>
+              <div class="switch-track">
+                <div class="switch-thumb"></div>
+              </div>
+            </div>
 
-        <div class="glass-subcard rounded-2xl p-3.5 focus-within:border-sky-300/50 transition">
-          <label for="input-fates" class="block text-xs font-medium text-sky-200/90 mb-1.5">Переплетающиеся судьбы</label>
-          <input type="number" id="input-fates" min="0" max="9999" placeholder="0"
-            class="w-full bg-transparent text-lg font-semibold text-white placeholder-slate-500 focus:outline-none" />
-          <span class="text-[11px] text-slate-400 mt-1 block">Ивентовые молитвы</span>
-        </div>
+            <div id="weapon-fields" class="weapon-fields-wrap">
+              <div class="grid-2">
+                <!-- Название оружия -->
+                <div class="glass-subcard field-box">
+                  <label for="input-weapon-name" class="field-label">Название оружия (необязательно)</label>
+                  <input type="text" id="input-weapon-name" class="text-input" placeholder="Например: Сигнатурное оружие" />
+                  <span class="field-hint">Отображается в золотом бейдже на верхней панели</span>
+                </div>
 
-        <div class="glass-subcard rounded-2xl p-3.5 focus-within:border-sky-300/50 transition">
-          <label for="input-starglitter" class="block text-xs font-medium text-sky-200/90 mb-1.5">Звёздный блеск</label>
-          <input type="number" id="input-starglitter" min="0" max="99999" placeholder="0"
-            class="w-full bg-transparent text-lg font-semibold text-white placeholder-slate-500 focus:outline-none" />
-          <span id="hint-starglitter" class="text-[11px] text-slate-400 mt-1 block">= 0 круток (по 5 блеска)</span>
-        </div>
+                <!-- Пити оружия -->
+                <div class="glass-subcard field-box">
+                  <label for="input-weapon-pity" class="field-label">
+                    <span>Откручено в оружейном баннере (пити)</span>
+                    <span style="color: var(--text-muted); font-weight: 500;">0–79</span>
+                  </label>
+                  <input type="number" id="input-weapon-pity" class="text-input" min="0" max="79" placeholder="0" />
+                  <span id="hint-weapon-pity" class="field-hint">Мягкий гарант с 63-й молитвы, жёсткий — на 80-й</span>
+                </div>
+              </div>
 
-        <div class="glass-subcard rounded-2xl p-3.5 focus-within:border-sky-300/50 transition">
-          <label for="input-pity" class="block text-xs font-medium text-sky-200/90 mb-1.5">Откручено после 5★</label>
-          <input type="number" id="input-pity" min="0" max="89" placeholder="0"
-            class="w-full bg-transparent text-lg font-semibold text-white placeholder-slate-500 focus:outline-none" />
-          <span id="hint-pity" class="text-[11px] text-slate-400 mt-1 block">От 0 до 89 молитв</span>
-        </div>
-      </div>
+              <!-- Выбор пробуждения R1..R5 -->
+              <div class="glass-subcard field-box">
+                <span class="field-label">Уровень пробуждения (количество копий оружия)</span>
+                <div class="seg-grid-5" id="refinement-group">
+                  <button type="button" data-ref="1" class="seg-btn">R1 (1)</button>
+                  <button type="button" data-ref="2" class="seg-btn">R2 (2)</button>
+                  <button type="button" data-ref="3" class="seg-btn">R3 (3)</button>
+                  <button type="button" data-ref="4" class="seg-btn">R4 (4)</button>
+                  <button type="button" data-ref="5" class="seg-btn">R5 (5)</button>
+                </div>
+                <span id="hint-refinement" class="field-hint">R1 — 1 копия сигнатурного оружия</span>
+              </div>
 
-      <!-- Переключатели пассивного дохода -->
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <!-- Ежедневные поручения -->
-        <button type="button" id="toggle-dailies" aria-pressed="true"
-          class="passive-card text-left p-4 rounded-2xl border transition flex items-start justify-between gap-3">
-          <div class="space-y-1">
-            <span class="text-sm font-semibold text-white block">Ежедневные поручения</span>
-            <span class="text-xs text-slate-300/85 block">60 Камней Истока / день</span>
-            <span id="passive-dailies-total" class="text-[11px] text-sky-300 font-medium block pt-0.5">+2 520 камней (15 кр.)</span>
+              <!-- Очко судьбы -->
+              <div class="glass-subcard field-box">
+                <span class="field-label">Очко судьбы (Путь воплощения)</span>
+                <div class="seg-grid-2">
+                  <button type="button" id="btn-fate-0" class="seg-btn">0 / 1 (макс. 160 кр. до 1-й копии)</button>
+                  <button type="button" id="btn-fate-1" class="seg-btn">1 / 1 (следующая 5★ гарантирована — макс. 80 кр.)</button>
+                </div>
+              </div>
+
+              <!-- Памятка по оружейному баннеру -->
+              <div class="info-callout">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7dd3fc" stroke-width="2" style="flex-shrink: 0; margin-top: 1px;">
+                  <circle cx="12" cy="12" r="10" />
+                  <path stroke-linecap="round" d="M12 16v-4M12 8h.01" />
+                </svg>
+                <span>
+                  Пити оружейного баннера считается отдельно от баннера персонажа. Мягкий гарант начинается с 63-й молитвы, жёсткий — на 80-й. Для гаранта сигнатурки нужно максимум 1 Очко судьбы (до 160 круток на копию).
+                </span>
+              </div>
+            </div>
           </div>
-          <div id="check-dailies" class="w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition"></div>
-        </button>
-
-        <!-- Благословение Полой Луны -->
-        <button type="button" id="toggle-welkin" aria-pressed="false"
-          class="passive-card text-left p-4 rounded-2xl border transition flex items-start justify-between gap-3">
-          <div class="space-y-1">
-            <span class="text-sm font-semibold text-white block">Полая Луна</span>
-            <span class="text-xs text-slate-300/85 block">90 Камней Истока / день</span>
-            <span id="passive-welkin-total" class="text-[11px] text-slate-400 font-medium block pt-0.5">Не выбрано</span>
-          </div>
-          <div id="check-welkin" class="w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition"></div>
-        </button>
-
-        <!-- Жемчужный гимн (БП) -->
-        <button type="button" id="toggle-bp" aria-pressed="false"
-          class="passive-card text-left p-4 rounded-2xl border transition flex items-start justify-between gap-3">
-          <div class="space-y-1">
-            <span class="text-sm font-semibold text-white block">Жемчужный гимн (БП)</span>
-            <span class="text-xs text-slate-300/85 block">680 камней + 4 крутки / патч</span>
-            <span id="passive-bp-total" class="text-[11px] text-slate-400 font-medium block pt-0.5">Не выбрано</span>
-          </div>
-          <div id="check-bp" class="w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition"></div>
-        </button>
+        </div>
       </div>
     </section>
 
-    <!-- 4. Универсальный трекер источников (Interactive Checklist) -->
-    <section class="glass-card rounded-3xl p-5 sm:p-6 space-y-5" aria-labelledby="checklist-heading">
-      <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div class="flex items-center gap-3">
-          <div class="w-9 h-9 rounded-xl bg-indigo-400/15 border border-indigo-300/25 flex items-center justify-center text-indigo-200 shrink-0">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8">
+    <!-- =========================================================
+         4. БЛОК 3: КОШЕЛЁК И ПАССИВНЫЙ ДОХОД
+         ========================================================= -->
+    <section class="glass-card section-card" data-section="wallet">
+      <button type="button" class="section-header" aria-expanded="true">
+        <div class="section-header-left">
+          <div class="section-icon icon-teal">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L15.5 8.5L22 12L15.5 15.5L12 22L8.5 15.5L2 12L8.5 8.5L12 2Z" />
+            </svg>
+          </div>
+          <div>
+            <h2 class="section-title">3. Кошелёк и пассивный доход</h2>
+            <p class="section-desc">Текущие ресурсы на аккаунте, таймер дней до конца баннера и подписки</p>
+          </div>
+        </div>
+        <div class="section-header-right">
+          <span id="pill-wallet-summary" class="section-summary-pill">0 кр. · 42 дн.</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
+        </div>
+      </button>
+
+      <div class="section-body-wrap">
+        <div class="section-body-inner">
+          <div class="section-content">
+            <!-- 3 поля кошелька -->
+            <div class="grid-3">
+              <div class="glass-subcard field-box">
+                <label for="input-primos" class="field-label">Камни Истока</label>
+                <input type="number" id="input-primos" class="big-num-input" min="0" max="9999999" placeholder="0" />
+                <span id="hint-primos" class="field-hint">= 0 круток (по 160)</span>
+              </div>
+
+              <div class="glass-subcard field-box">
+                <label for="input-fates" class="field-label">Переплетающиеся судьбы</label>
+                <input type="number" id="input-fates" class="big-num-input" min="0" max="99999" placeholder="0" />
+                <span class="field-hint">Готовые ивентовые молитвы</span>
+              </div>
+
+              <div class="glass-subcard field-box">
+                <label for="input-starglitter" class="field-label">Звёздный блеск</label>
+                <input type="number" id="input-starglitter" class="big-num-input" min="0" max="99999" placeholder="0" />
+                <span id="hint-starglitter" class="field-hint">= 0 круток (по 5 блеска)</span>
+              </div>
+            </div>
+
+            <!-- Ползунок и поле: Дней до конца баннера -->
+            <div class="glass-subcard days-control-box">
+              <div class="days-top-row">
+                <div>
+                  <label for="input-days" class="field-label" style="margin-bottom: 2px;">Дней до конца баннера (0–90)</label>
+                  <span class="field-hint">Влияет на расчёт ежедневок, Полой Луны, БП и Магазина Паймон</span>
+                </div>
+                <div class="days-input-group">
+                  <input type="number" id="input-days" min="0" max="90" value="42" />
+                  <span style="font-size: 12px; color: var(--text-muted);">дн.</span>
+                </div>
+              </div>
+
+              <input type="range" id="range-days" min="0" max="90" value="42" aria-label="Дней до конца баннера" />
+
+              <div class="preset-row">
+                <button type="button" data-days="7" class="preset-btn">7 дн.</button>
+                <button type="button" data-days="14" class="preset-btn">14 дн.</button>
+                <button type="button" data-days="21" class="preset-btn">21 дн. (половина)</button>
+                <button type="button" data-days="42" class="preset-btn">42 дн. (1 патч)</button>
+                <button type="button" data-days="63" class="preset-btn">63 дн.</button>
+                <button type="button" data-days="84" class="preset-btn">84 дн. (2 патча)</button>
+              </div>
+            </div>
+
+            <!-- 4 переключателя пассивного дохода -->
+            <div class="passive-grid">
+              <button type="button" id="toggle-dailies" class="passive-card">
+                <div>
+                  <div style="font-size: 13.5px; font-weight: 600; color: var(--text-bright);">Ежедневные поручения</div>
+                  <div style="font-size: 12px; color: var(--text-muted);">+60 примогемов / день</div>
+                  <div id="passive-dailies-val" style="font-size: 11.5px; font-weight: 600; color: var(--ice); margin-top: 4px;">+0 камней</div>
+                </div>
+                <div id="check-dailies" class="checkbox-box"></div>
+              </button>
+
+              <button type="button" id="toggle-welkin" class="passive-card">
+                <div>
+                  <div style="font-size: 13.5px; font-weight: 600; color: var(--text-bright);">Благословение Полой Луны</div>
+                  <div style="font-size: 12px; color: var(--text-muted);">+90 примогемов / день</div>
+                  <div id="passive-welkin-val" style="font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-top: 4px;">Не выбрано</div>
+                </div>
+                <div id="check-welkin" class="checkbox-box"></div>
+              </button>
+
+              <button type="button" id="toggle-bp" class="passive-card">
+                <div>
+                  <div style="font-size: 13.5px; font-weight: 600; color: var(--text-bright);">Жемчужный гимн (БП)</div>
+                  <div style="font-size: 12px; color: var(--text-muted);">+680 примогемов и +4 судьбы / патч</div>
+                  <div id="passive-bp-val" style="font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-top: 4px;">Не выбрано</div>
+                </div>
+                <div id="check-bp" class="checkbox-box"></div>
+              </button>
+
+              <button type="button" id="toggle-paimon" class="passive-card">
+                <div>
+                  <div style="font-size: 13.5px; font-weight: 600; color: var(--text-bright);">Магазин Паймон</div>
+                  <div style="font-size: 12px; color: var(--text-muted);">+5 судеб в месяц (за Звёздную пыль)</div>
+                  <div id="passive-paimon-val" style="font-size: 11.5px; font-weight: 600; color: var(--text-muted); margin-top: 4px;">Не выбрано</div>
+                </div>
+                <div id="check-paimon" class="checkbox-box"></div>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- =========================================================
+         5. БЛОК 4: ПЛАН ЗАЧИСТКИ И ИСТОЧНИКИ КАМНЕЙ ИСТОКА
+         ========================================================= -->
+    <section class="glass-card section-card" data-section="plan">
+      <button type="button" class="section-header" aria-expanded="true">
+        <div class="section-header-left">
+          <div class="section-icon icon-indigo">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9">
               <path stroke-linecap="round" stroke-linejoin="round" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4" />
             </svg>
           </div>
           <div>
-            <h2 id="checklist-heading" class="text-base sm:text-lg font-semibold text-white">3. Источники Камней Истока (план фарма)</h2>
-            <p class="text-xs text-slate-400">Отмечай пункты, которые планируешь забрать — цифры справа можно редактировать под свой процент зачистки</p>
+            <h2 class="section-title">4. План зачистки и источники Камней Истока</h2>
+            <p class="section-desc">Отмечай галочкой источники «В план» и редактируй количество примогемов под свой прогресс</p>
           </div>
         </div>
-
-        <div class="glass-subcard rounded-2xl px-4 py-2.5 flex items-center gap-3 shrink-0">
-          <span class="text-xs text-slate-300">Выбрано в план:</span>
-          <span id="selected-tasks-primos" class="text-sm font-bold text-amber-200">0 камней</span>
-          <span id="selected-tasks-pulls" class="text-xs text-sky-300">(+0 кр.)</span>
+        <div class="section-header-right">
+          <span id="pill-plan-summary" class="section-summary-pill" style="color: var(--gold);">+0 кр. в плане</span>
+          <svg class="chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
+          </svg>
         </div>
-      </div>
+      </button>
 
-      <!-- Вкладки категорий -->
-      <div class="flex flex-wrap gap-1.5" role="tablist" aria-label="Категории источников">
-        <button type="button" data-filter="all" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-medium transition">Все</button>
-        <button type="button" data-filter="regular" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-medium transition">Регулярные</button>
-        <button type="button" data-filter="story" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-medium transition">Сюжет и ивенты</button>
-        <button type="button" data-filter="regions" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-medium transition">Регионы и подношения</button>
-        <button type="button" data-filter="custom" class="filter-btn px-3.5 py-2 rounded-xl text-xs font-medium transition">Свои задачи</button>
-      </div>
+      <div class="section-body-wrap">
+        <div class="section-body-inner">
+          <div class="section-content">
+            <!-- Фильтры и сумма плана -->
+            <div class="filter-bar">
+              <div class="filter-tabs" role="tablist">
+                <button type="button" data-filter="all" class="filter-tab active">Все</button>
+                <button type="button" data-filter="regions" class="filter-tab">Регионы</button>
+                <button type="button" data-filter="story" class="filter-tab">Сюжет и ивенты</button>
+                <button type="button" data-filter="combat" class="filter-tab">Боевые режимы</button>
+              </div>
 
-      <!-- Форма добавления своей задачи -->
-      <form id="custom-task-form" class="glass-subcard rounded-2xl p-3.5 flex flex-col sm:flex-row gap-2.5">
-        <input type="text" id="custom-task-title" placeholder="Добавить свою цель (например: Добить достижения или Событие браузера)..."
-          class="flex-1 bg-slate-950/60 border border-sky-200/15 rounded-xl px-3.5 py-2 text-xs sm:text-sm text-white placeholder-slate-500 focus:outline-none focus:border-sky-300/50" />
-        <div class="flex items-center gap-2">
-          <div class="flex items-center bg-slate-950/60 border border-sky-200/15 rounded-xl px-3 py-2 w-36 focus-within:border-sky-300/50">
-            <input type="number" id="custom-task-primos" min="1" max="999999" placeholder="Камни"
-              class="w-full bg-transparent text-xs sm:text-sm font-semibold text-white placeholder-slate-500 focus:outline-none" />
-            <span class="text-[11px] text-slate-400 ml-1">шт.</span>
+              <div class="plan-total-pill">
+                <span style="color: var(--text-muted);">В плане:</span>
+                <strong id="plan-primos-total" style="color: var(--gold);">0 камней</strong>
+                <span id="plan-pulls-total" style="color: var(--ice);">(+0 кр.)</span>
+              </div>
+            </div>
+
+            <!-- Добавление своего источника -->
+            <form id="custom-source-form" class="glass-subcard add-form">
+              <input type="text" id="custom-title" class="text-input" placeholder="Свой источник (например: Достижения или Чайник)..." />
+              <select id="custom-cat" class="select-input">
+                <option value="regions">Регионы</option>
+                <option value="story">Сюжет и ивенты</option>
+                <option value="combat">Боевые режимы</option>
+              </select>
+              <input type="number" id="custom-primos" class="text-input" min="1" max="999999" placeholder="Примогемы" />
+              <button type="submit" class="btn btn-ice" style="white-space: nowrap;">+ Добавить</button>
+            </form>
+
+            <!-- Список источников -->
+            <div id="sources-container" class="source-list"></div>
           </div>
-          <button type="submit"
-            class="px-4 py-2 rounded-xl text-xs sm:text-sm font-semibold bg-sky-400/20 hover:bg-sky-400/30 text-sky-100 border border-sky-300/30 transition shrink-0 active:scale-95">
-            + Добавить
-          </button>
         </div>
-      </form>
-
-      <!-- Контейнер задач -->
-      <div id="tasks-list" class="space-y-3">
-        <!-- Заполняется из JS -->
       </div>
     </section>
 
-    <!-- Футер -->
-    <footer class="text-center text-xs text-slate-400/80 pt-1 pb-6">
-      Пусть звёзды Селестии сияют благосклонно и дарят ранних 5★ персонажей без лишних проигрышей.
+    <footer>
+      Пусть звёзды Селестии дарят ранние 5★ и берегут твои крутки на пути к Царице и её сигнатурке.
     </footer>
 
   </main>
 
   <script>
-    // Базовый универсальный список источников Камней Истока по всему Тейвату
-    const DEFAULT_TASKS = [
-      // Регулярные
-      {
-        id: 'reg-abyss',
-        category: 'regular',
-        categoryLabel: 'Регулярные',
-        title: 'Витая Бездна (этажи 9–12, обновление 16-го числа)',
-        defaultPrimos: 800,
-        tip: 'Полное закрытие 9–12 этажей на 36 звёзд приносит 800 Камней Истока за цикл. Если 12-й этаж даётся тяжело, прохождение 9–11 этажей на 27 звёзд стабильно даёт 600 камней.'
-      },
-      {
-        id: 'reg-theater',
-        category: 'regular',
-        categoryLabel: 'Регулярные',
-        title: 'Театр «Воображариум» (обновление 1-го числа месяца)',
-        defaultPrimos: 800,
-        tip: 'Закрытие всех актов приносит 800 Камней Истока за сезон (и дополнительные камни при первом прохождении уровней сложности). Используй персонажа поддержки от друзей на финальных боссов.'
-      },
-      {
-        id: 'reg-onslaught',
-        category: 'regular',
-        categoryLabel: 'Регулярные',
-        title: 'Мрачный натиск (боевые испытания цикла)',
-        defaultPrimos: 450,
-        tip: 'Боевой режим с наградами за уровни сложности — забираются быстрыми отрядами с высоким уроном в одну цель.'
-      },
-      {
-        id: 'reg-shop-codes',
-        category: 'regular',
-        categoryLabel: 'Регулярные',
-        title: 'Магазин Паймон (5 круток в месяц) + промокоды стрима разработчиков',
-        defaultPrimos: 1100,
-        tip: 'Каждый месяц в магазине Паймон обновляются 5 Переплетающихся судеб за Звёздную пыль (= 800 камней), а стрим новой версии даёт 3 промокода ещё на 300 Камней Истока.'
-      },
+    /* =========================================================
+       Базовый список источников Камней Истока
+       ========================================================= */
+    const CATEGORY_LABELS = {
+      regions: 'Регионы',
+      story: 'Сюжет и ивенты',
+      combat: 'Боевые режимы'
+    };
+
+    const DEFAULT_SOURCES = [
+      // Регионы
+      { id: 'reg-snezhnaya', category: 'regions', title: 'Снежная (локации, Статуя Архонтов и криокулы)', defaultPrimos: 3200 },
+      { id: 'reg-nodkrai', category: 'regions', title: 'Нод-Край и Храм пространства', defaultPrimos: 1600 },
+      { id: 'reg-natlan', category: 'regions', title: 'Натлан (племена, Статуя Архонтов и Огонь Тоны)', defaultPrimos: 2000 },
+      { id: 'reg-fontaine', category: 'regions', title: 'Фонтейн и Море древности (Фонтан Люсин)', defaultPrimos: 1500 },
+      { id: 'reg-sumeru', category: 'regions', title: 'Сумеру (лес, пустыня, Древо снов и Озеро амриты)', defaultPrimos: 1600 },
+      { id: 'reg-inazuma', category: 'regions', title: 'Инадзума и Энканомия (Священная сакура)', defaultPrimos: 1400 },
+      { id: 'reg-liyue', category: 'regions', title: 'Ли Юэ, Разлом и Долина Чэньюй', defaultPrimos: 1200 },
+      { id: 'reg-mondstadt', category: 'regions', title: 'Мондштадт, Драконий хребет и Пик ветров', defaultPrimos: 600 },
 
       // Сюжет и ивенты
-      {
-        id: 'story-events',
-        category: 'story',
-        categoryLabel: 'Сюжет и ивенты',
-        title: 'Главный и мини-ивенты текущего и следующего патча',
-        defaultPrimos: 2260,
-        tip: 'Один полноценный патч (42 дня) приносит примерно 2200–2500 Камней Истока с временных событий: ~1000 за главный ивент и по ~420 за три малых ивента.'
-      },
-      {
-        id: 'story-archon',
-        category: 'story',
-        categoryLabel: 'Сюжет и ивенты',
-        title: 'Непройденные Задания Архонтов (главы основного сюжета)',
-        defaultPrimos: 960,
-        tip: 'Помимо наград за сами квесты, в Справочнике искателя за каждый завершённый акт Заданий Архонтов выдаётся 1 Переплетающаяся судьба (= 160 камней) и материалы возвышения.'
-      },
-      {
-        id: 'story-legends',
-        category: 'story',
-        categoryLabel: 'Сюжет и ивенты',
-        title: 'Задания легенд, Хроники племени и Встречи',
-        defaultPrimos: 720,
-        tip: 'Каждое Задание легенд и Встреча приносят 60–90 Камней Истока с учётом скрытых достижений за все концовки. Во встречах можно прыгать сразу к нужным развилкам через схему концовок.'
-      },
+      { id: 'story-archon', category: 'story', title: 'Главный сюжет (Задания Архонтов)', defaultPrimos: 960 },
+      { id: 'story-legends', category: 'story', title: 'Задания легенд и Встречи', defaultPrimos: 720 },
+      { id: 'story-main-event', category: 'story', title: 'Главный ивент патча', defaultPrimos: 1000 },
+      { id: 'story-mini-events', category: 'story', title: 'Малые ивенты и веб-ивенты', defaultPrimos: 1260 },
+      { id: 'story-trials-codes', category: 'story', title: 'Тестовые забеги и промокоды стрима', defaultPrimos: 380 },
 
-      // Регионы и подношения
-      {
-        id: 'reg-snezhnaya',
-        category: 'regions',
-        categoryLabel: 'Регионы и подношения',
-        title: 'Снежная: исследование локаций, Статуя Архонтов и криокулы',
-        defaultPrimos: 3200,
-        tip: 'Крупный резерв камней: сундуки, усыпальницы глубин, точки телепортации и уровни Статуи семи Архонтов. Используй Компас сокровищ Снежной и Камни эха криокулов для финального добора.'
-      },
-      {
-        id: 'reg-nodkrai',
-        category: 'regions',
-        categoryLabel: 'Регионы и подношения',
-        title: 'Нод-Край и Храм пространства (Статуя Богини Луны, Ядро памяти)',
-        defaultPrimos: 1800,
-        tip: 'Проверь уровень Статуи Богини Луны, прогресс Храма пространства и оставшиеся сундуки по компасу.'
-      },
-      {
-        id: 'reg-natlan',
-        category: 'regions',
-        categoryLabel: 'Регионы и подношения',
-        title: 'Натлан: исследование племён, Статуя Архонтов и Огонь Тоны',
-        defaultPrimos: 2000,
-        tip: 'Каждый уровень Огня Тоны (до 50-го) приносит 50 Камней Истока, а каждые 10 уровней — дополнительно 2 Переплетающиеся судьбы. Компас Натлана также подсвечивает испытания маниту.'
-      },
-      {
-        id: 'reg-fontaine',
-        category: 'regions',
-        categoryLabel: 'Регионы и подношения',
-        title: 'Фонтейн и Море древности (Статуя Архонтов и Фонтан Люсин)',
-        defaultPrimos: 1500,
-        tip: 'Фонтан Люсин имеет 50 уровней подношений и щедро вознаграждает за сбор Гидро печатей в подводных и наземных областях.'
-      },
-      {
-        id: 'reg-sumeru',
-        category: 'regions',
-        categoryLabel: 'Регионы и подношения',
-        title: 'Сумеру: тропический лес, пустыня, Древо снов и Озеро амриты',
-        defaultPrimos: 1600,
-        tip: 'Сбор Дендро печатей для Древа снов (50 уровней) и перьев очищающего света для Озера амриты (600 камней) удобно совмещать с цепочкой Араньяки.'
-      },
-      {
-        id: 'reg-inazuma',
-        category: 'regions',
-        categoryLabel: 'Регионы и подношения',
-        title: 'Инадзума и Энканомия (Статуя Архонтов и Священная сакура)',
-        defaultPrimos: 1400,
-        tip: 'Благосклонность Священной сакуры (50 уровней) и скрытые головоломки Энканомии содержат много богатых и драгоценных сундуков.'
-      },
-      {
-        id: 'reg-liyue',
-        category: 'regions',
-        categoryLabel: 'Регионы и подношения',
-        title: 'Ли Юэ, Разлом и Долина Чэньюй (Адъювант и Заветный нефрит)',
-        defaultPrimos: 1200,
-        tip: 'Подношения Заветного нефрита в Долине Чэньюй и Адъюванта светоносного камня в Разломе дают и камни, и ивентовые крутки.'
-      },
-      {
-        id: 'reg-mondstadt',
-        category: 'regions',
-        categoryLabel: 'Регионы и подношения',
-        title: 'Мондштадт, Драконий хребет и Пик ветров',
-        defaultPrimos: 600,
-        tip: 'Проверь Анемо компасом приграничные зоны Пика ветров и ущелья Дадаупа, а также Дерево вечной мерзлоты на Драконьем хребте.'
-      }
+      // Боевые режимы
+      { id: 'combat-abyss', category: 'combat', title: 'Витая Бездна (этажи 9–12)', defaultPrimos: 800 },
+      { id: 'combat-theater', category: 'combat', title: 'Театр «Воображариум»', defaultPrimos: 800 },
+      { id: 'combat-onslaught', category: 'combat', title: 'Мрачный натиск', defaultPrimos: 450 }
     ];
 
-    const STORAGE_KEY = 'genshin_universal_wish_calculator_v1';
+    const STORAGE_KEY = 'genshin_universal_wish_calc_v2_weapon';
 
-    function getInitialState() {
+    function createDefaultState() {
       const primosMap = {};
-      DEFAULT_TASKS.forEach(t => {
-        primosMap[t.id] = t.defaultPrimos;
-      });
+      DEFAULT_SOURCES.forEach(s => { primosMap[s.id] = s.defaultPrimos; });
       return {
-        charName: '',
-        targetConst: 0,
-        isGuaranteed: false,
-        radianceLosses: 0,
-        days: 42,
+        charName: 'Царица',
+        charConst: 0,           // -1 = не нужен, 0..6 = C0..C6
+        charPity: 0,            // 0..89
+        charGuaranteed: false,  // false = 50/50, true = 100%
+        radianceLosses: 0,      // 0..3
+
+        weaponEnabled: true,    // по умолчанию включено
+        weaponName: '',
+        weaponRef: 1,           // 1..5 (R1..R5)
+        weaponPity: 0,          // 0..79
+        weaponFatePoint: 0,     // 0 or 1
+
         primos: '',
         fates: '',
         starglitter: '',
-        pity: '0',
+        days: 42,
+
         dailies: true,
         welkin: false,
         bp: false,
-        checkedTasks: {},
-        taskPrimos: primosMap,
-        customTasks: [],
-        filter: 'all'
+        paimonShop: false,
+
+        selectedSources: {},
+        sourcePrimos: primosMap,
+        customSources: [],
+        filter: 'all',
+        collapsed: {}
       };
     }
 
-    let state = getInitialState();
-    let fullResetPending = false;
-    let fullResetTimer = null;
+    let state = createDefaultState();
+    let resetConfirmPending = false;
+    let resetConfirmTimer = null;
+    let toastTimer = null;
 
     function loadState() {
       try {
         const raw = localStorage.getItem(STORAGE_KEY);
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          const base = getInitialState();
-          state = {
-            ...base,
-            ...parsed,
-            checkedTasks: { ...(parsed.checkedTasks || {}) },
-            taskPrimos: { ...base.taskPrimos, ...(parsed.taskPrimos || {}) },
-            customTasks: Array.isArray(parsed.customTasks) ? parsed.customTasks : []
-          };
-        }
-      } catch (err) {
-        console.warn('Не удалось загрузить сохранённые данные:', err);
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        const def = createDefaultState();
+        state = {
+          ...def,
+          ...parsed,
+          selectedSources: { ...(parsed.selectedSources || {}) },
+          sourcePrimos: { ...def.sourcePrimos, ...(parsed.sourcePrimos || {}) },
+          customSources: Array.isArray(parsed.customSources) ? parsed.customSources : [],
+          collapsed: { ...(parsed.collapsed || {}) }
+        };
+      } catch (e) {
+        console.warn('Ошибка чтения localStorage:', e);
       }
     }
 
     function saveState() {
       try {
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (err) {
-        console.warn('Не удалось сохранить данные:', err);
+      } catch (e) {
+        console.warn('Ошибка записи localStorage:', e);
       }
     }
 
-    // Уведомление
-    let toastTimer = null;
-    function showToast(text) {
+    function showToast(msg) {
       const el = document.getElementById('toast');
-      document.getElementById('toast-message').textContent = text;
-      el.classList.remove('opacity-0', 'translate-y-3');
-      el.classList.add('opacity-100', 'translate-y-0');
+      document.getElementById('toast-text').textContent = msg;
+      el.classList.add('show');
       clearTimeout(toastTimer);
-      toastTimer = setTimeout(() => {
-        el.classList.remove('opacity-100', 'translate-y-0');
-        el.classList.add('opacity-0', 'translate-y-3');
-      }, 2400);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
     }
 
-    // Генерация звёздного неба
     function initStarfield() {
       const container = document.getElementById('starfield');
-      const count = 34;
-      for (let i = 0; i < count; i++) {
+      for (let i = 0; i < 36; i++) {
         const dot = document.createElement('div');
         dot.className = 'star-dot';
         const size = (Math.random() * 2.2 + 1).toFixed(1);
-        dot.style.width = `${size}px`;
-        dot.style.height = `${size}px`;
-        dot.style.left = `${(Math.random() * 100).toFixed(1)}%`;
-        dot.style.top = `${(Math.random() * 100).toFixed(1)}%`;
+        dot.style.width = size + 'px';
+        dot.style.height = size + 'px';
+        dot.style.left = (Math.random() * 100).toFixed(1) + '%';
+        dot.style.top = (Math.random() * 100).toFixed(1) + '%';
         dot.style.background = i % 4 === 0 ? '#fde68a' : '#bae6fd';
-        dot.style.setProperty('--dur', `${(Math.random() * 4.5 + 3).toFixed(1)}s`);
-        dot.style.setProperty('--delay', `${(Math.random() * 4).toFixed(1)}s`);
+        dot.style.setProperty('--dur', (Math.random() * 4.5 + 3).toFixed(1) + 's');
+        dot.style.setProperty('--delay', (Math.random() * 4).toFixed(1) + 's');
         container.appendChild(dot);
-      }
-    }
-
-    // Расчёт максимального порога 100% гаранта с учётом:
-    // - желаемых созвездий (С0..С6 => 1..7 копий)
-    // - текущего статуса (50/50 или 100% гарант)
-    // - счётчика Пленительного сияния (при 3 проигрышах 50/50 подряд следующий 50/50 спасёт сияние!)
-    function calculateMaxGuaranteePulls() {
-      const totalCopies = state.targetConst + 1;
-      let simGuaranteed = state.isGuaranteed;
-      let simLosses = state.radianceLosses;
-      let maxPulls = 0;
-
-      for (let i = 0; i < totalCopies; i++) {
-        if (simGuaranteed) {
-          // 100% гарант закрывает копию за 90 круток, после чего следующий бросок становится 50/50
-          maxPulls += 90;
-          simGuaranteed = false;
-        } else if (simLosses >= 3) {
-          // Срабатывает гарантированное Пленительное сияние на 50/50 (90 круток), счётчик сбрасывается
-          maxPulls += 90;
-          simLosses = 0;
-          simGuaranteed = false;
-        } else {
-          // В худшем случае проигрываем 50/50 (90 кр., счётчик неудач +1) и забираем по 100% гаранту (90 кр.)
-          maxPulls += 180;
-          simLosses += 1;
-          simGuaranteed = false;
-        }
-      }
-      return maxPulls;
-    }
-
-    // Получить все задачи (базовые + пользовательские)
-    function getAllTasks() {
-      return [...DEFAULT_TASKS, ...state.customTasks];
-    }
-
-    // Подсчёт суммы примогемов из отмеченных задач плана
-    function getSelectedChecklistPrimos() {
-      const all = getAllTasks();
-      return all.reduce((sum, task) => {
-        if (!state.checkedTasks[task.id]) return sum;
-        const val = Math.max(0, parseInt(state.taskPrimos[task.id], 10) || 0);
-        return sum + val;
-      }, 0);
-    }
-
-    // Главный пересчёт всех показателей
-    function recalculate() {
-      const days = Math.max(0, parseInt(state.days, 10) || 0);
-      const primos = Math.max(0, parseInt(state.primos, 10) || 0);
-      const fates = Math.max(0, parseInt(state.fates, 10) || 0);
-      const starglitter = Math.max(0, parseInt(state.starglitter, 10) || 0);
-      const pity = Math.min(89, Math.max(0, parseInt(state.pity, 10) || 0));
-
-      // Текущие крутки
-      const pullsFromPrimos = Math.floor(primos / 160);
-      const pullsFromGlitter = Math.floor(starglitter / 5);
-      const savedPulls = pullsFromPrimos + fates + pullsFromGlitter;
-      const currentTotal = savedPulls + pity;
-
-      // Пассивный доход за days дней
-      const dailiesPrimos = state.dailies ? days * 60 : 0;
-      const welkinPrimos = state.welkin ? days * 90 : 0;
-      const bpCycles = (state.bp && days > 0) ? Math.max(1, Math.ceil(days / 42)) : 0;
-      const bpPrimos = bpCycles * 680;
-      const bpExtraPulls = bpCycles * 4;
-
-      const passiveTotalPrimos = dailiesPrimos + welkinPrimos + bpPrimos;
-      const passivePulls = Math.floor(passiveTotalPrimos / 160) + bpExtraPulls;
-
-      // Выбранные задачи чек-листа
-      const selectedPrimos = getSelectedChecklistPrimos();
-      const checklistPulls = Math.floor(selectedPrimos / 160);
-
-      // Итоговый прогноз
-      const projectedTotal = currentTotal + passivePulls + checklistPulls;
-
-      // Максимальный порог гаранта на выбранную цель
-      const maxGuaranteeCap = calculateMaxGuaranteePulls();
-
-      // Обновление подписей полей кошелька
-      document.getElementById('hint-primos').textContent = `= ${pullsFromPrimos} круток`;
-      document.getElementById('hint-starglitter').textContent = `= ${pullsFromGlitter} круток (по 5 блеска)`;
-      document.getElementById('hint-pity').textContent = pity >= 77
-        ? `Зона мягкого гаранта! (${pity}/90)`
-        : `До мягкого гаранта (77): ${77 - pity} кр.`;
-
-      // Обновление подписей карточек пассивного дохода
-      const dailiesEl = document.getElementById('passive-dailies-total');
-      if (state.dailies) {
-        dailiesEl.textContent = `+${dailiesPrimos.toLocaleString('ru-RU')} камней (~${Math.floor(dailiesPrimos / 160)} кр.) за ${days} дн.`;
-        dailiesEl.className = 'text-[11px] text-sky-300 font-medium block pt-0.5';
-      } else {
-        dailiesEl.textContent = 'Не учитывается';
-        dailiesEl.className = 'text-[11px] text-slate-400 font-medium block pt-0.5';
-      }
-
-      const welkinEl = document.getElementById('passive-welkin-total');
-      if (state.welkin) {
-        welkinEl.textContent = `+${welkinPrimos.toLocaleString('ru-RU')} камней (~${Math.floor(welkinPrimos / 160)} кр.) за ${days} дн.`;
-        welkinEl.className = 'text-[11px] text-amber-200 font-medium block pt-0.5';
-      } else {
-        welkinEl.textContent = 'Не выбрано';
-        welkinEl.className = 'text-[11px] text-slate-400 font-medium block pt-0.5';
-      }
-
-      const bpEl = document.getElementById('passive-bp-total');
-      if (state.bp && days > 0) {
-        const bpTotalPulls = Math.floor(bpPrimos / 160) + bpExtraPulls;
-        bpEl.textContent = `+${bpPrimos} камней и +${bpExtraPulls} кр. (×${bpCycles} патч = ~${bpTotalPulls} кр.)`;
-        bpEl.className = 'text-[11px] text-indigo-200 font-medium block pt-0.5';
-      } else if (state.bp && days === 0) {
-        bpEl.textContent = 'Укажи количество дней > 0';
-        bpEl.className = 'text-[11px] text-slate-400 font-medium block pt-0.5';
-      } else {
-        bpEl.textContent = 'Не выбрано';
-        bpEl.className = 'text-[11px] text-slate-400 font-medium block pt-0.5';
-      }
-
-      // Обновление выбранного плана в шапке чек-листа
-      document.getElementById('selected-tasks-primos').textContent = `${selectedPrimos.toLocaleString('ru-RU')} камней`;
-      document.getElementById('selected-tasks-pulls').textContent = `(+${checklistPulls} кр.)`;
-
-      // Обновление верхней сводки (Dashboard)
-      const displayName = state.charName.trim() || 'Желанный персонаж';
-      document.getElementById('display-target-name').textContent = displayName;
-      document.getElementById('display-target-const').textContent = `С${state.targetConst} (${state.targetConst + 1} ${getCopiesWord(state.targetConst + 1)})`;
-
-      document.getElementById('stat-current-pulls').textContent = currentTotal;
-      document.getElementById('stat-current-breakdown').textContent = `${savedPulls} в запасе + ${pity} откручено`;
-
-      document.getElementById('stat-projected-pulls').textContent = projectedTotal;
-      document.getElementById('stat-projected-breakdown').textContent = `+${passivePulls} пассивно и +${checklistPulls} из плана`;
-
-      document.getElementById('stat-guarantee-cap').textContent = maxGuaranteeCap;
-      document.getElementById('stat-guarantee-note').textContent = state.isGuaranteed
-        ? `100% гарант на 1-ю копию · Сияние: ${state.radianceLosses}/3`
-        : `Статус: 50/50 · Сияние: ${state.radianceLosses}/3`;
-
-      // Статус-бейдж (хватает или сколько не хватает)
-      const badge = document.getElementById('status-badge');
-      const dot = document.getElementById('status-badge-dot');
-      const badgeText = document.getElementById('status-badge-text');
-
-      if (currentTotal >= maxGuaranteeCap) {
-        const surplus = currentTotal - maxGuaranteeCap;
-        badge.className = 'px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium flex items-center gap-2 shrink-0 bg-emerald-400/15 border-emerald-300/35 text-emerald-200';
-        dot.className = 'w-2 h-2 rounded-full bg-emerald-300';
-        badgeText.textContent = surplus > 0
-          ? `100% гарант уже есть! Запас: +${surplus} кр.`
-          : '100% гарант на цель уже полностью собран!';
-      } else if (projectedTotal >= maxGuaranteeCap) {
-        const surplus = projectedTotal - maxGuaranteeCap;
-        badge.className = 'px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium flex items-center gap-2 shrink-0 bg-amber-300/15 border-amber-300/35 text-amber-100';
-        dot.className = 'w-2 h-2 rounded-full bg-amber-300';
-        badgeText.textContent = surplus > 0
-          ? `По прогнозу хватит на 100% гарант (+${surplus} кр. запаса)`
-          : 'По прогнозу ровно хватит на 100% гарант!';
-      } else {
-        const deficit = maxGuaranteeCap - projectedTotal;
-        badge.className = 'px-4 py-2.5 rounded-2xl border text-xs sm:text-sm font-medium flex items-center gap-2 shrink-0 bg-sky-400/15 border-sky-300/30 text-sky-100';
-        dot.className = 'w-2 h-2 rounded-full bg-sky-300';
-        badgeText.textContent = `До 100% гаранта по прогнозу не хватает: ${deficit} кр.`;
-      }
-
-      // Шкала прогресса до maxGuaranteeCap
-      const currentPct = Math.min(100, (currentTotal / maxGuaranteeCap) * 100);
-      const projectedPctTotal = Math.min(100, (projectedTotal / maxGuaranteeCap) * 100);
-      const extraPct = Math.max(0, projectedPctTotal - currentPct);
-
-      const barCurrent = document.getElementById('bar-current');
-      const barProjected = document.getElementById('bar-projected');
-      barCurrent.style.width = `${currentPct}%`;
-      barProjected.style.width = `${extraPct}%`;
-      if (currentPct >= 100) {
-        barCurrent.classList.add('rounded-r-full');
-      } else {
-        barCurrent.classList.remove('rounded-r-full');
-      }
-
-      // Позиционирование маркеров 77 и 90 на шкале
-      const marker77 = document.getElementById('marker-77');
-      const marker90 = document.getElementById('marker-90');
-      if (maxGuaranteeCap > 90) {
-        marker77.style.display = 'flex';
-        marker90.style.display = 'flex';
-        marker77.style.left = `${(77 / maxGuaranteeCap) * 100}%`;
-        marker90.style.left = `${(90 / maxGuaranteeCap) * 100}%`;
-      } else {
-        marker77.style.display = 'flex';
-        marker77.style.left = `${(77 / 90) * 100}%`;
-        marker90.style.display = 'none';
-      }
-
-      document.getElementById('legend-max-cap').textContent = `Полный гарант: ${maxGuaranteeCap}`;
-      document.getElementById('milestone-full-title').textContent = `100% гарант цели (${maxGuaranteeCap} кр.)`;
-
-      // Карточки вех (показываем прогресс с учётом прогноза, если есть, и текущих)
-      updateMilestoneCard(77, currentTotal, projectedTotal, 'milestone-77-desc', 'milestone-77-pct');
-      updateMilestoneCard(90, currentTotal, projectedTotal, 'milestone-90-desc', 'milestone-90-pct');
-      updateMilestoneCard(maxGuaranteeCap, currentTotal, projectedTotal, 'milestone-full-desc', 'milestone-full-pct');
-    }
-
-    function updateMilestoneCard(target, current, projected, descId, pctId) {
-      const descEl = document.getElementById(descId);
-      const pctEl = document.getElementById(pctId);
-      const pct = Math.min(100, Math.round((projected / target) * 100));
-      pctEl.textContent = `${pct}%`;
-
-      if (current >= target) {
-        descEl.textContent = 'Уже закрыто текущими';
-        descEl.className = 'text-xs text-emerald-300 font-medium';
-      } else if (projected >= target) {
-        descEl.textContent = 'Закроется по прогнозу';
-        descEl.className = 'text-xs text-amber-200 font-medium';
-      } else {
-        descEl.textContent = `Осталось: ${target - projected} кр.`;
-        descEl.className = 'text-xs text-slate-300';
       }
     }
 
@@ -984,117 +1953,6 @@
       return 'копий';
     }
 
-    // Обновление UI переключателей цели, гаранта, сияния и пассивок
-    function syncControlsUI() {
-      // Созвездия
-      document.querySelectorAll('.const-btn').forEach(btn => {
-        const c = parseInt(btn.getAttribute('data-const'), 10);
-        if (c === state.targetConst) {
-          btn.className = 'const-btn py-2 rounded-xl text-xs font-semibold border transition bg-amber-300/20 text-amber-200 border-amber-300/45 shadow-md';
-        } else {
-          btn.className = 'const-btn py-2 rounded-xl text-xs font-semibold border transition bg-slate-950/50 text-slate-300 border-sky-200/15 hover:border-sky-300/35';
-        }
-      });
-      document.getElementById('const-helper').textContent = state.targetConst === 0
-        ? 'С0 — базовый персонаж (1 ивентовая 5★ копия)'
-        : `С${state.targetConst} — нужно поймать ${state.targetConst + 1} ${getCopiesWord(state.targetConst + 1)} ивентового персонажа`;
-
-      // 50/50 vs 100% Гарант
-      const btn5050 = document.getElementById('btn-guarantee-5050');
-      const btn100 = document.getElementById('btn-guarantee-100');
-      const gHelper = document.getElementById('guarantee-helper');
-
-      if (!state.isGuaranteed) {
-        btn5050.className = 'py-2.5 px-3 rounded-xl text-xs font-semibold border transition flex items-center justify-center gap-1.5 bg-sky-400/20 text-sky-100 border-sky-300/45';
-        btn100.className = 'py-2.5 px-3 rounded-xl text-xs font-semibold border transition flex items-center justify-center gap-1.5 bg-slate-950/50 text-slate-400 border-sky-200/15 hover:text-slate-200';
-        gHelper.textContent = 'Следующая 5★ легендарка идёт по правилу 50/50 (с шансом Пленительного сияния).';
-      } else {
-        btn100.className = 'py-2.5 px-3 rounded-xl text-xs font-semibold border transition flex items-center justify-center gap-1.5 bg-amber-300/20 text-amber-100 border-amber-300/45';
-        btn5050.className = 'py-2.5 px-3 rounded-xl text-xs font-semibold border transition flex items-center justify-center gap-1.5 bg-slate-950/50 text-slate-400 border-sky-200/15 hover:text-slate-200';
-        gHelper.textContent = '100% гарант активен: первая 5★ легендарка гарантированно будет персонажем баннера (макс. 90 кр.).';
-      }
-
-      // Пленительное сияние
-      document.querySelectorAll('.rad-btn').forEach(btn => {
-        const r = parseInt(btn.getAttribute('data-radiance'), 10);
-        if (r === state.radianceLosses) {
-          btn.className = 'rad-btn py-2 rounded-xl text-xs font-semibold border transition bg-fuchsia-400/20 text-fuchsia-100 border-fuchsia-300/45';
-        } else {
-          btn.className = 'rad-btn py-2 rounded-xl text-xs font-semibold border transition bg-slate-950/50 text-slate-300 border-sky-200/15 hover:border-fuchsia-300/30';
-        }
-      });
-
-      const rHelper = document.getElementById('radiance-helper');
-      if (state.radianceLosses === 3) {
-        rHelper.textContent = 'Накоплено 3 проигрыша подряд: следующий бросок 50/50 гарантированно спасёт Пленительное сияние (макс. 90 кр.)!';
-        rHelper.className = 'text-[11px] text-fuchsia-200 font-medium block';
-      } else if (state.radianceLosses === 2) {
-        rHelper.textContent = 'После 2 проигрышей подряд шанс срабатывания Пленительного сияния повышен (~75%).';
-        rHelper.className = 'text-[11px] text-sky-200/90 block';
-      } else {
-        rHelper.textContent = 'При 3 проигрышах 50/50 подряд следующий бросок 50/50 гарантированно спасёт сияние.';
-        rHelper.className = 'text-[11px] text-slate-400 block';
-      }
-
-      // Пассивный доход
-      updatePassiveToggleUI('toggle-dailies', 'check-dailies', state.dailies, 'sky');
-      updatePassiveToggleUI('toggle-welkin', 'check-welkin', state.welkin, 'amber');
-      updatePassiveToggleUI('toggle-bp', 'check-bp', state.bp, 'indigo');
-
-      // Вкладки фильтров
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        const f = btn.getAttribute('data-filter');
-        if (f === state.filter) {
-          btn.className = 'filter-btn px-3.5 py-2 rounded-xl text-xs font-medium transition bg-sky-400/20 text-sky-100 border border-sky-300/35';
-        } else {
-          btn.className = 'filter-btn px-3.5 py-2 rounded-xl text-xs font-medium transition text-slate-400 hover:text-slate-200 border border-transparent';
-        }
-      });
-    }
-
-    function updatePassiveToggleUI(btnId, checkId, active, color) {
-      const btn = document.getElementById(btnId);
-      const box = document.getElementById(checkId);
-      btn.setAttribute('aria-pressed', active);
-
-      const styles = {
-        sky: 'bg-sky-400/15 border-sky-300/40',
-        amber: 'bg-amber-300/15 border-amber-300/40',
-        indigo: 'bg-indigo-400/15 border-indigo-300/40'
-      };
-      const boxStyles = {
-        sky: 'bg-sky-300 border-sky-200 text-slate-950',
-        amber: 'bg-amber-300 border-amber-200 text-slate-950',
-        indigo: 'bg-indigo-300 border-indigo-200 text-slate-950'
-      };
-
-      if (active) {
-        btn.className = `passive-card text-left p-4 rounded-2xl border transition flex items-start justify-between gap-3 ${styles[color]}`;
-        box.className = `w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 mt-0.5 transition ${boxStyles[color]}`;
-        box.innerHTML = `<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" /></svg>`;
-      } else {
-        btn.className = 'passive-card text-left p-4 rounded-2xl border transition flex items-start justify-between gap-3 glass-subcard hover:border-sky-300/30';
-        box.className = 'w-6 h-6 rounded-lg border border-sky-300/30 bg-slate-950/60 flex items-center justify-center shrink-0 mt-0.5 transition';
-        box.innerHTML = '';
-      }
-    }
-
-    function getCategoryBadgeStyle(cat) {
-      switch (cat) {
-        case 'regular':
-          return 'bg-amber-300/15 text-amber-200 border-amber-300/25';
-        case 'story':
-          return 'bg-indigo-400/15 text-indigo-200 border-indigo-300/25';
-        case 'regions':
-          return 'bg-sky-400/15 text-sky-200 border-sky-300/25';
-        case 'custom':
-          return 'bg-teal-400/15 text-teal-200 border-teal-300/25';
-        default:
-          return 'bg-sky-400/15 text-sky-200 border-sky-300/25';
-      }
-    }
-
-    // Экранирование HTML для пользовательских названий задач
     function escapeHtml(str) {
       return String(str)
         .replace(/&/g, '&amp;')
@@ -1103,267 +1961,703 @@
         .replace(/"/g, '&quot;');
     }
 
-    // Рендер списка задач
-    function renderTasks() {
-      const container = document.getElementById('tasks-list');
+    function getAllSources() {
+      return [...DEFAULT_SOURCES, ...state.customSources];
+    }
+
+    /* =========================================================
+       Математика расчёта гаранта (Персонаж + Сигнатурка)
+       ========================================================= */
+    function calculateCharacterNeeds() {
+      if (state.charConst < 0) {
+        return { maxNeed: 0, softAvg: 0 };
+      }
+      const copies = state.charConst + 1;
+      const pity = Math.min(89, Math.max(0, parseInt(state.charPity, 10) || 0));
+
+      // 1) Худший случай (жёсткий гарант 90, с учётом 50/50 и Пленительного сияния)
+      let simGuaranteed = state.charGuaranteed;
+      let simLosses = state.radianceLosses;
+      let maxTotal = 0;
+
+      for (let i = 0; i < copies; i++) {
+        if (simGuaranteed) {
+          maxTotal += 90;
+          simGuaranteed = false;
+        } else if (simLosses >= 3) {
+          maxTotal += 90;
+          simLosses = 0;
+          simGuaranteed = false;
+        } else {
+          maxTotal += 180;
+          simLosses += 1;
+          simGuaranteed = false;
+        }
+      }
+
+      // 2) Ожидаемое среднее (мягкий гарант ~77 на 5★)
+      let avgTotal = 0;
+      let avgGuaranteed = state.charGuaranteed;
+      let avgLosses = state.radianceLosses;
+      for (let i = 0; i < copies; i++) {
+        if (avgGuaranteed || avgLosses >= 3) {
+          avgTotal += 77;
+          avgGuaranteed = false;
+          if (avgLosses >= 3) avgLosses = 0;
+        } else if (avgLosses === 2) {
+          // ~75% шанс срабатывания сияния/выигрыша -> ~1.25 легендарки
+          avgTotal += Math.round(77 * 1.25);
+          avgLosses = 0;
+        } else {
+          // ~55% эффективный шанс с учётом Пленительного сияния -> ~1.45 легендарки
+          avgTotal += Math.round(77 * 1.45);
+        }
+      }
+
+      return {
+        maxNeed: Math.max(0, maxTotal - pity),
+        softAvg: Math.max(0, avgTotal - pity)
+      };
+    }
+
+    function calculateWeaponNeeds() {
+      if (!state.weaponEnabled) {
+        return { maxNeed: 0, softAvg: 0 };
+      }
+      const copies = Math.min(5, Math.max(1, parseInt(state.weaponRef, 10) || 1));
+      const pity = Math.min(79, Math.max(0, parseInt(state.weaponPity, 10) || 0));
+      const fate = state.weaponFatePoint === 1 ? 1 : 0;
+
+      // Максимум: (копии * 160) - (если 1 Очко судьбы ? 80 : 0) - пити оружия
+      const maxNeed = Math.max(0, (copies * 160) - (fate === 1 ? 80 : 0) - pity);
+
+      // Среднее / мягкий гарант (~65 на 5★; с 0 Очком ~106 кр. на копию, с 1 Очком ~65 кр. на первую)
+      const avgFirst = fate === 1 ? 65 : 106;
+      const avgTotal = avgFirst + (copies - 1) * 106;
+      const softAvg = Math.max(0, avgTotal - pity);
+
+      return { maxNeed, softAvg };
+    }
+
+    function calculatePlanPrimos() {
+      return getAllSources().reduce((sum, src) => {
+        if (!state.selectedSources[src.id]) return sum;
+        const val = Math.max(0, parseInt(state.sourcePrimos[src.id], 10) || 0);
+        return sum + val;
+      }, 0);
+    }
+
+    /* =========================================================
+       Обновление всех расчётов и UI
+       ========================================================= */
+    function recalculate() {
+      const primos = Math.max(0, parseInt(state.primos, 10) || 0);
+      const fates = Math.max(0, parseInt(state.fates, 10) || 0);
+      const starglitter = Math.max(0, parseInt(state.starglitter, 10) || 0);
+      const days = Math.min(90, Math.max(0, parseInt(state.days, 10) || 0));
+      const charPity = Math.min(89, Math.max(0, parseInt(state.charPity, 10) || 0));
+      const weaponPity = Math.min(79, Math.max(0, parseInt(state.weaponPity, 10) || 0));
+
+      // Кошелёк
+      const pullsFromPrimos = Math.floor(primos / 160);
+      const pullsFromGlitter = Math.floor(starglitter / 5);
+      const walletPulls = pullsFromPrimos + fates + pullsFromGlitter;
+
+      document.getElementById('hint-primos').textContent = `= ${pullsFromPrimos} круток (по 160)`;
+      document.getElementById('hint-starglitter').textContent = `= ${pullsFromGlitter} круток (по 5 блеска)`;
+
+      // Пассивный доход
+      const dailiesPrimos = state.dailies ? days * 60 : 0;
+      const welkinPrimos = state.welkin ? days * 90 : 0;
+      const bpCycles = (state.bp && days > 0) ? Math.max(1, Math.ceil(days / 42)) : 0;
+      const bpPrimos = bpCycles * 680;
+      const bpFates = bpCycles * 4;
+      const paimonCycles = (state.paimonShop && days > 0) ? Math.max(1, Math.ceil(days / 30)) : 0;
+      const paimonFates = paimonCycles * 5;
+
+      const passivePrimos = dailiesPrimos + welkinPrimos + bpPrimos;
+      const passivePulls = Math.floor(passivePrimos / 160) + bpFates + paimonFates;
+
+      // План зачистки
+      const planPrimos = calculatePlanPrimos();
+      const planPulls = Math.floor(planPrimos / 160);
+
+      // Итоговый прогноз
+      const projectedPulls = walletPulls + passivePulls + planPulls;
+
+      // Потребности (Персонаж + Оружие)
+      const charNeed = calculateCharacterNeeds();
+      const weaponNeed = calculateWeaponNeeds();
+      const totalMaxNeed = charNeed.maxNeed + weaponNeed.maxNeed;
+      const totalSoftAvg = charNeed.softAvg + weaponNeed.softAvg;
+
+      // --- Подписи пассивных карточек ---
+      updatePassiveText('passive-dailies-val', state.dailies, `+${dailiesPrimos.toLocaleString('ru-RU')} камней (~${Math.floor(dailiesPrimos / 160)} кр.)`, 'var(--ice)');
+      updatePassiveText('passive-welkin-val', state.welkin, `+${welkinPrimos.toLocaleString('ru-RU')} камней (~${Math.floor(welkinPrimos / 160)} кр.)`, 'var(--gold)');
+      updatePassiveText('passive-bp-val', state.bp && days > 0, `+${bpPrimos} камней и +${bpFates} судей (~${Math.floor(bpPrimos / 160) + bpFates} кр.)`, 'var(--gold)', state.bp ? 'Укажи дней > 0' : 'Не выбрано');
+      updatePassiveText('passive-paimon-val', state.paimonShop && days > 0, `+${paimonFates} судеб (${paimonCycles} мес.)`, 'var(--ice)', state.paimonShop ? 'Укажи дней > 0' : 'Не выбрано');
+
+      // --- Сумма в шапке плана ---
+      document.getElementById('plan-primos-total').textContent = `${planPrimos.toLocaleString('ru-RU')} камней`;
+      document.getElementById('plan-pulls-total').textContent = `(+${planPulls} кр.)`;
+
+      // --- Сводные пилюли в заголовках секций ---
+      const charLabel = state.charName.trim() || 'Царица';
+      document.getElementById('pill-char-summary').textContent = state.charConst < 0
+        ? 'Не выбран'
+        : `${charLabel} · C${state.charConst} · ${charPity}/90`;
+
+      document.getElementById('pill-weapon-summary').textContent = state.weaponEnabled
+        ? `R${state.weaponRef} · ${weaponPity}/80 · Очко ${state.weaponFatePoint}/1`
+        : 'Отключено';
+
+      document.getElementById('pill-wallet-summary').textContent = `${walletPulls} кр. · ${days} дн.`;
+      document.getElementById('pill-plan-summary').textContent = `+${planPulls} кр. в плане`;
+
+      // --- Верхняя панель (Dashboard) ---
+      const dashNameEl = document.getElementById('dash-char-name');
+      const dashCharBadge = document.getElementById('dash-char-badge');
+      const dashWeaponBadge = document.getElementById('dash-weapon-badge');
+
+      if (state.charConst >= 0) {
+        dashNameEl.textContent = charLabel;
+        dashCharBadge.style.display = 'inline-flex';
+        dashCharBadge.textContent = `C${state.charConst} (${state.charConst + 1} ${getCopiesWord(state.charConst + 1)})`;
+      } else if (state.weaponEnabled) {
+        dashNameEl.textContent = state.weaponName.trim() || 'Сигнатурное оружие';
+        dashCharBadge.style.display = 'none';
+      } else {
+        dashNameEl.textContent = 'Цель не выбрана';
+        dashCharBadge.style.display = 'none';
+      }
+
+      if (state.weaponEnabled) {
+        dashWeaponBadge.style.display = 'inline-flex';
+        const wTitle = state.weaponName.trim() || 'Сигнатурка';
+        dashWeaponBadge.textContent = `R${state.weaponRef} ${wTitle}`;
+      } else {
+        dashWeaponBadge.style.display = 'none';
+      }
+
+      // 3 главные карточки
+      document.getElementById('stat-wallet-pulls').textContent = walletPulls;
+      document.getElementById('stat-pity-breakdown').textContent = `Откручено: Персонаж ${charPity}/90 • Оружие ${weaponPity}/80`;
+
+      document.getElementById('stat-projected-pulls').textContent = projectedPulls;
+      document.getElementById('stat-projected-sub').textContent = `+${passivePulls} пассивно и +${planPulls} из плана`;
+
+      document.getElementById('stat-need-total').textContent = totalMaxNeed;
+      document.getElementById('stat-need-breakdown').textContent = `Персонаж: ${charNeed.maxNeed} кр. • Оружие: ${weaponNeed.maxNeed} кр.`;
+
+      // Статус-пилюля
+      const statusPill = document.getElementById('dash-status-pill');
+      const statusText = document.getElementById('dash-status-text');
+
+      if (totalMaxNeed === 0) {
+        statusPill.className = 'status-pill status-need';
+        statusText.textContent = 'Выбери персонажа или сигнатурное оружие';
+      } else if (walletPulls >= totalMaxNeed) {
+        const extra = walletPulls - totalMaxNeed;
+        statusPill.className = 'status-pill status-ok';
+        statusText.textContent = extra > 0
+          ? `100% гарант уже в кошельке (+${extra} кр. запаса)`
+          : '100% гарант цели уже полностью собран!';
+      } else if (projectedPulls >= totalMaxNeed) {
+        const extra = projectedPulls - totalMaxNeed;
+        statusPill.className = 'status-pill status-projected';
+        statusText.textContent = extra > 0
+          ? `Хватит по прогнозу (+${extra} кр. запаса)`
+          : 'По прогнозу ровно хватит на 100% гарант!';
+      } else {
+        const deficit = totalMaxNeed - projectedPulls;
+        statusPill.className = 'status-pill status-need';
+        statusText.textContent = `До 100% гаранта не хватает: ${deficit} кр.`;
+      }
+
+      // Полоса прогресса
+      const barNow = document.getElementById('bar-now');
+      const barProj = document.getElementById('bar-proj');
+      const markerSoft = document.getElementById('marker-soft');
+      const markerChar = document.getElementById('marker-char');
+      const legendSoft = document.getElementById('legend-soft');
+      const legendChar = document.getElementById('legend-char');
+      const legendTotal = document.getElementById('legend-total');
+
+      if (totalMaxNeed === 0) {
+        barNow.style.width = '0%';
+        barProj.style.width = '0%';
+        markerSoft.style.display = 'none';
+        markerChar.style.display = 'none';
+        legendSoft.textContent = 'Ожидаемое среднее: 0 кр.';
+        legendChar.style.display = 'none';
+        legendTotal.textContent = '100% гарант цели: 0 кр.';
+      } else {
+        const nowPct = Math.min(100, (walletPulls / totalMaxNeed) * 100);
+        const totalProjPct = Math.min(100, (projectedPulls / totalMaxNeed) * 100);
+        const extraProjPct = Math.max(0, totalProjPct - nowPct);
+
+        barNow.style.width = nowPct.toFixed(2) + '%';
+        barNow.classList.toggle('full', nowPct >= 99.5 || extraProjPct === 0);
+
+        barProj.style.width = extraProjPct.toFixed(2) + '%';
+        barProj.classList.toggle('rounded-end', nowPct + extraProjPct >= 99.5);
+
+        // Отметка среднего (мягкого гаранта)
+        const softPct = Math.min(98, Math.max(2, (totalSoftAvg / totalMaxNeed) * 100));
+        markerSoft.style.display = totalSoftAvg > 0 && totalSoftAvg < totalMaxNeed ? 'flex' : 'none';
+        markerSoft.style.left = softPct.toFixed(2) + '%';
+        legendSoft.textContent = `Ожидаемое среднее (мягкий): ~${totalSoftAvg} кр.`;
+
+        // Отметка гаранта персонажа (если включены и персонаж, и оружие)
+        const bothEnabled = charNeed.maxNeed > 0 && weaponNeed.maxNeed > 0;
+        if (bothEnabled) {
+          const charPct = Math.min(98, Math.max(2, (charNeed.maxNeed / totalMaxNeed) * 100));
+          markerChar.style.display = 'flex';
+          markerChar.style.left = charPct.toFixed(2) + '%';
+          legendChar.style.display = 'inline';
+          legendChar.textContent = `Гарант персонажа: ${charNeed.maxNeed} кр.`;
+        } else {
+          markerChar.style.display = 'none';
+          legendChar.style.display = 'none';
+        }
+
+        legendTotal.textContent = `100% гарант цели: ${totalMaxNeed} кр.`;
+      }
+
+      // 3 карточки-вехи под полосой
+      updateMilestone(
+        'mile-char-text',
+        'mile-char-pct',
+        state.charConst >= 0,
+        charNeed.maxNeed,
+        walletPulls,
+        projectedPulls,
+        'Не выбран'
+      );
+
+      updateMilestone(
+        'mile-weapon-text',
+        'mile-weapon-pct',
+        state.weaponEnabled,
+        weaponNeed.maxNeed,
+        walletPulls,
+        projectedPulls,
+        'Не выбрано'
+      );
+
+      // Итоговая веха
+      const totalTextEl = document.getElementById('mile-total-text');
+      const totalPctEl = document.getElementById('mile-total-pct');
+      if (totalMaxNeed === 0) {
+        totalTextEl.textContent = 'Цель не задана';
+        totalPctEl.textContent = '—';
+      } else {
+        const pct = Math.min(100, Math.round((projectedPulls / totalMaxNeed) * 100));
+        totalPctEl.textContent = pct + '%';
+        if (walletPulls >= totalMaxNeed) {
+          totalTextEl.textContent = 'Закрыто текущим кошельком';
+        } else if (projectedPulls >= totalMaxNeed) {
+          totalTextEl.textContent = 'Закроется по прогнозу';
+        } else {
+          totalTextEl.textContent = `Осталось: ${totalMaxNeed - projectedPulls} кр.`;
+        }
+      }
+    }
+
+    function updatePassiveText(elId, isActive, activeText, activeColor, inactiveText = 'Не выбрано') {
+      const el = document.getElementById(elId);
+      if (isActive) {
+        el.textContent = activeText;
+        el.style.color = activeColor;
+      } else {
+        el.textContent = inactiveText;
+        el.style.color = 'var(--text-muted)';
+      }
+    }
+
+    function updateMilestone(textId, pctId, isEnabled, need, wallet, projected, disabledLabel) {
+      const textEl = document.getElementById(textId);
+      const pctEl = document.getElementById(pctId);
+      if (!isEnabled) {
+        textEl.textContent = disabledLabel;
+        pctEl.textContent = '—';
+        return;
+      }
+      if (need === 0) {
+        textEl.textContent = 'Уже закрыто текущим пити';
+        pctEl.textContent = '100%';
+        return;
+      }
+      const pct = Math.min(100, Math.round((projected / need) * 100));
+      pctEl.textContent = pct + '%';
+      if (wallet >= need) {
+        textEl.textContent = `Нужно ${need} кр. • Хватает сейчас`;
+      } else if (projected >= need) {
+        textEl.textContent = `Нужно ${need} кр. • Закроется по прогнозу`;
+      } else {
+        textEl.textContent = `Нужно ${need} кр. • Осталось: ${need - projected}`;
+      }
+    }
+
+    /* =========================================================
+       Синхронизация всех визуальных переключателей
+       ========================================================= */
+    function syncControlsUI() {
+      // Подсказка созвездия
+      const constHint = document.getElementById('hint-char-const');
+      if (state.charConst < 0) {
+        constHint.textContent = 'Персонаж исключён — считаем только сигнатурное оружие';
+      } else {
+        const copies = state.charConst + 1;
+        constHint.textContent = `C${state.charConst} — нужно получить ${copies} ${getCopiesWord(copies)} ивентового 5★`;
+      }
+
+      // 50/50 vs 100%
+      const btn5050 = document.getElementById('btn-char-5050');
+      const btn100 = document.getElementById('btn-char-100');
+      const gHint = document.getElementById('hint-char-guarantee');
+
+      btn5050.className = 'seg-btn' + (!state.charGuaranteed ? ' active-ice' : '');
+      btn100.className = 'seg-btn' + (state.charGuaranteed ? ' active-gold' : '');
+      gHint.textContent = state.charGuaranteed
+        ? '100% гарант активен: первая 5★ копия гарантированно ивентовая (макс. 90 кр.)'
+        : 'Следующая 5★ легендарка идёт по правилу 50/50 (с шансом Пленительного сияния)';
+
+      // Пленительное сияние
+      document.querySelectorAll('#radiance-group [data-rad]').forEach(btn => {
+        const val = parseInt(btn.getAttribute('data-rad'), 10);
+        btn.className = 'seg-btn' + (val === state.radianceLosses ? ' active-fuchsia' : '');
+      });
+
+      const rHint = document.getElementById('hint-radiance');
+      if (state.radianceLosses === 3) {
+        rHint.textContent = 'Накоплено 3/3 проигрышей: следующий 50/50 гарантированно спасёт «Пленительное сияние» (макс. 90 кр.)!';
+        rHint.style.color = 'var(--fuchsia)';
+      } else if (state.radianceLosses === 2) {
+        rHint.textContent = 'При 2/3 проигрышей шанс срабатывания сияния существенно повышен (~75%).';
+        rHint.style.color = 'var(--ice-light)';
+      } else {
+        rHint.textContent = 'При 3/3 следующий бросок 50/50 гарантированно спасёт «Пленительное сияние» (макс. 90 круток вместо 180).';
+        rHint.style.color = 'var(--text-muted)';
+      }
+
+      // Тумблер сигнатурного оружия
+      const wBanner = document.getElementById('weapon-toggle-banner');
+      const wSub = document.getElementById('weapon-toggle-sub');
+      const wFields = document.getElementById('weapon-fields');
+      wBanner.className = 'switch-banner ' + (state.weaponEnabled ? 'on' : 'off');
+      wBanner.setAttribute('aria-checked', state.weaponEnabled);
+      wSub.textContent = state.weaponEnabled
+        ? 'Включено — крутки на сигнатурку суммируются с целью персонажа'
+        : 'Отключено — нажми, чтобы добавить сигнатурное оружие в расчёт';
+      wSub.style.color = state.weaponEnabled ? 'var(--gold)' : 'var(--text-muted)';
+      wFields.classList.toggle('disabled', !state.weaponEnabled);
+
+      // Пробуждение R1..R5
+      document.querySelectorAll('#refinement-group [data-ref]').forEach(btn => {
+        const ref = parseInt(btn.getAttribute('data-ref'), 10);
+        btn.className = 'seg-btn' + (ref === state.weaponRef ? ' active-gold' : '');
+      });
+      document.getElementById('hint-refinement').textContent =
+        `R${state.weaponRef} — ${state.weaponRef} ${getCopiesWord(state.weaponRef)} сигнатурного оружия`;
+
+      // Очко судьбы
+      document.getElementById('btn-fate-0').className = 'seg-btn' + (state.weaponFatePoint === 0 ? ' active-ice' : '');
+      document.getElementById('btn-fate-1').className = 'seg-btn' + (state.weaponFatePoint === 1 ? ' active-gold' : '');
+
+      // Пассивный доход
+      syncPassiveCard('toggle-dailies', 'check-dailies', state.dailies, 'ice');
+      syncPassiveCard('toggle-welkin', 'check-welkin', state.welkin, 'gold');
+      syncPassiveCard('toggle-bp', 'check-bp', state.bp, 'gold');
+      syncPassiveCard('toggle-paimon', 'check-paimon', state.paimonShop, 'ice');
+
+      // Вкладки фильтра
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.getAttribute('data-filter') === state.filter);
+      });
+
+      // Свёрнутые секции
+      document.querySelectorAll('.section-card').forEach(sec => {
+        const key = sec.getAttribute('data-section');
+        const isCollapsed = !!state.collapsed[key];
+        sec.classList.toggle('collapsed', isCollapsed);
+        const headerBtn = sec.querySelector('.section-header');
+        if (headerBtn) headerBtn.setAttribute('aria-expanded', !isCollapsed);
+      });
+    }
+
+    function syncPassiveCard(cardId, checkId, active, tone) {
+      const card = document.getElementById(cardId);
+      const box = document.getElementById(checkId);
+      card.className = 'passive-card' + (active ? ` active-${tone}` : '');
+      box.className = 'checkbox-box' + (active ? ` checked-${tone}` : '');
+      box.innerHTML = active
+        ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>'
+        : '';
+    }
+
+    /* =========================================================
+       Рендер списка источников плана зачистки
+       ========================================================= */
+    function renderSources() {
+      const container = document.getElementById('sources-container');
       container.innerHTML = '';
 
-      const allTasks = getAllTasks();
-      const filtered = allTasks.filter(t => state.filter === 'all' || t.category === state.filter);
+      const list = getAllSources().filter(s => state.filter === 'all' || s.category === state.filter);
 
-      if (filtered.length === 0) {
-        container.innerHTML = `
-          <div class="glass-subcard rounded-2xl p-6 text-center text-xs sm:text-sm text-slate-400">
-            В этой вкладке пока нет задач. Добавь свою цель через форму выше или переключи категорию.
-          </div>
-        `;
+      if (list.length === 0) {
+        container.innerHTML = '<div class="glass-subcard" style="padding: 18px; text-align: center; font-size: 13px; color: var(--text-muted);">В этой категории пока нет источников.</div>';
         return;
       }
 
-      filtered.forEach(task => {
-        const isChecked = !!state.checkedTasks[task.id];
-        const currentPrimos = state.taskPrimos[task.id] !== undefined
-          ? state.taskPrimos[task.id]
-          : task.defaultPrimos;
+      list.forEach(src => {
+        const checked = !!state.selectedSources[src.id];
+        const primosVal = state.sourcePrimos[src.id] !== undefined ? state.sourcePrimos[src.id] : src.defaultPrimos;
 
-        const card = document.createElement('article');
-        card.className = `glass-subcard rounded-2xl p-4 transition-all duration-200 ${
-          isChecked ? 'border-sky-300/40 bg-sky-950/35' : 'hover:border-sky-300/25'
-        }`;
+        const row = document.createElement('div');
+        row.className = 'source-row' + (checked ? ' selected' : '');
 
-        card.innerHTML = `
-          <div class="flex items-start gap-3.5">
-            <!-- Чекбокс включения в план -->
-            <button type="button" data-check-id="${task.id}" aria-pressed="${isChecked}"
-              title="Включить источник в расчёт прогноза"
-              class="mt-0.5 w-6 h-6 rounded-lg border flex items-center justify-center shrink-0 transition cursor-pointer ${
-                isChecked
-                  ? 'bg-sky-300 border-sky-200 text-slate-950'
-                  : 'border-sky-300/35 bg-slate-950/60 hover:border-sky-300'
-              }">
-              ${isChecked ? `
-                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7" />
-                </svg>
-              ` : ''}
+        row.innerHTML = `
+          <div class="source-left">
+            <button type="button" data-toggle-src="${src.id}" aria-pressed="${checked}" title="Включить источник в план"
+              class="checkbox-box ${checked ? 'checked-ice' : ''}">
+              ${checked ? '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/></svg>' : ''}
             </button>
-
-            <div class="flex-1 min-w-0 space-y-2">
-              <div class="flex flex-wrap items-center justify-between gap-2">
-                <span class="px-2.5 py-0.5 rounded-full text-[11px] font-medium border ${getCategoryBadgeStyle(task.category)}">
-                  ${escapeHtml(task.categoryLabel)}
-                </span>
-
-                <div class="flex flex-wrap items-center gap-2">
-                  <!-- Редактируемое количество Камней Истока -->
-                  <label class="inline-flex items-center gap-1.5 bg-slate-950/75 border border-sky-200/20 rounded-xl px-2.5 py-1 focus-within:border-amber-300/60 transition" title="Нажми, чтобы изменить количество Камней Истока под свой прогресс">
-                    <svg class="w-3.5 h-3.5 text-sky-300 shrink-0" viewBox="0 0 24 24" fill="currentColor">
-                      <path d="M12 2L15.5 8.5L22 12L15.5 15.5L12 22L8.5 15.5L2 12L8.5 8.5L12 2Z" />
-                    </svg>
-                    <input type="number" data-primos-id="${task.id}" min="0" max="999999" value="${currentPrimos}"
-                      class="w-16 bg-transparent text-xs font-semibold text-amber-200 text-right focus:outline-none" />
-                    <span class="text-[11px] text-slate-400">шт.</span>
-                  </label>
-
-                  ${task.tip ? `
-                    <button type="button" data-tip-id="${task.id}" aria-expanded="false"
-                      class="px-2.5 py-1 rounded-xl text-xs font-medium bg-slate-900/85 hover:bg-sky-400/15 text-sky-200 border border-sky-200/15 transition flex items-center gap-1">
-                      <span>Совет</span>
-                      <svg class="w-3 h-3 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                      </svg>
-                    </button>
-                  ` : ''}
-
-                  ${task.isCustom ? `
-                    <button type="button" data-delete-id="${task.id}" title="Удалить свою задачу"
-                      class="p-1.5 rounded-xl text-slate-400 hover:text-rose-300 hover:bg-rose-500/15 border border-transparent hover:border-rose-400/25 transition">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
-                      </svg>
-                    </button>
-                  ` : ''}
-                </div>
-              </div>
-
-              <h3 class="text-sm font-medium leading-snug ${isChecked ? 'text-white' : 'text-slate-200'}">
-                ${escapeHtml(task.title)}
-              </h3>
-
-              ${task.tip ? `
-                <div id="tip-box-${task.id}" class="tip-content">
-                  <div class="tip-inner">
-                    <div class="mt-2 pt-2.5 border-t border-sky-200/10 text-xs leading-relaxed text-slate-300">
-                      <span class="text-sky-300 font-semibold">Подсказка:</span> ${escapeHtml(task.tip)}
-                    </div>
-                  </div>
-                </div>
-              ` : ''}
+            <div class="source-info">
+              <span class="source-title">${escapeHtml(src.title)}</span>
+              <span class="source-cat">${CATEGORY_LABELS[src.category] || 'Своё'}${src.isCustom ? ' • Свой источник' : ''}</span>
             </div>
+          </div>
+
+          <div class="source-right">
+            <label class="primos-inline-edit" title="Отредактируй количество Камней Истока под свой прогресс">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="#7dd3fc">
+                <path d="M12 2L15.5 8.5L22 12L15.5 15.5L12 22L8.5 15.5L2 12L8.5 8.5L12 2Z" />
+              </svg>
+              <input type="number" data-primos-src="${src.id}" min="0" max="999999" value="${primosVal}" />
+              <span style="font-size: 11px; color: var(--text-muted);">шт.</span>
+            </label>
+            ${src.isCustom ? `
+              <button type="button" data-del-src="${src.id}" class="delete-btn" title="Удалить источник">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            ` : ''}
           </div>
         `;
 
-        container.appendChild(card);
+        container.appendChild(row);
       });
 
-      // События чекбоксов
-      container.querySelectorAll('[data-check-id]').forEach(btn => {
+      // Обработчики галочек
+      container.querySelectorAll('[data-toggle-src]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-check-id');
-          state.checkedTasks[id] = !state.checkedTasks[id];
+          const id = btn.getAttribute('data-toggle-src');
+          state.selectedSources[id] = !state.selectedSources[id];
           saveState();
           recalculate();
-          renderTasks();
+          renderSources();
         });
       });
 
-      // События редактирования примогемов в задаче
-      container.querySelectorAll('[data-primos-id]').forEach(input => {
-        input.addEventListener('input', (e) => {
-          const id = input.getAttribute('data-primos-id');
-          state.taskPrimos[id] = Math.max(0, parseInt(e.target.value, 10) || 0);
+      // Обработчики редактирования примогемов
+      container.querySelectorAll('[data-primos-src]').forEach(inp => {
+        inp.addEventListener('input', (e) => {
+          const id = inp.getAttribute('data-primos-src');
+          state.sourcePrimos[id] = Math.max(0, parseInt(e.target.value, 10) || 0);
           saveState();
           recalculate();
         });
       });
 
-      // События раскрытия советов
-      container.querySelectorAll('[data-tip-id]').forEach(btn => {
+      // Удаление пользовательских источников
+      container.querySelectorAll('[data-del-src]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-tip-id');
-          const box = document.getElementById(`tip-box-${id}`);
-          const svg = btn.querySelector('svg');
-          const opened = box.classList.toggle('open');
-          btn.setAttribute('aria-expanded', opened);
-          if (svg) svg.style.transform = opened ? 'rotate(180deg)' : 'rotate(0deg)';
-        });
-      });
-
-      // События удаления пользовательских задач
-      container.querySelectorAll('[data-delete-id]').forEach(btn => {
-        btn.addEventListener('click', () => {
-          const id = btn.getAttribute('data-delete-id');
-          state.customTasks = state.customTasks.filter(t => t.id !== id);
-          delete state.checkedTasks[id];
-          delete state.taskPrimos[id];
+          const id = btn.getAttribute('data-del-src');
+          state.customSources = state.customSources.filter(s => s.id !== id);
+          delete state.selectedSources[id];
+          delete state.sourcePrimos[id];
           saveState();
           recalculate();
-          renderTasks();
-          showToast('Задача удалена');
+          renderSources();
+          showToast('Источник удалён');
         });
       });
     }
 
-    // Инициализация всех обработчиков
+    /* =========================================================
+       Инициализация всех событий
+       ========================================================= */
+    function hydrateInputs() {
+      document.getElementById('input-char-name').value = state.charName;
+      document.getElementById('select-char-const').value = String(state.charConst);
+      document.getElementById('input-char-pity').value = state.charPity;
+
+      document.getElementById('input-weapon-name').value = state.weaponName;
+      document.getElementById('input-weapon-pity').value = state.weaponPity;
+
+      document.getElementById('input-primos').value = state.primos;
+      document.getElementById('input-fates').value = state.fates;
+      document.getElementById('input-starglitter').value = state.starglitter;
+      document.getElementById('input-days').value = state.days;
+      document.getElementById('range-days').value = state.days;
+    }
+
     document.addEventListener('DOMContentLoaded', () => {
       loadState();
       initStarfield();
-
-      const inputCharName = document.getElementById('input-char-name');
-      const inputDays = document.getElementById('input-days');
-      const inputPrimos = document.getElementById('input-primos');
-      const inputFates = document.getElementById('input-fates');
-      const inputStarglitter = document.getElementById('input-starglitter');
-      const inputPity = document.getElementById('input-pity');
-
-      function hydrateInputs() {
-        inputCharName.value = state.charName;
-        inputDays.value = state.days;
-        inputPrimos.value = state.primos;
-        inputFates.value = state.fates;
-        inputStarglitter.value = state.starglitter;
-        inputPity.value = state.pity;
-      }
-
       hydrateInputs();
 
-      inputCharName.addEventListener('input', (e) => {
+      // Сворачивание секций
+      document.querySelectorAll('.section-card .section-header').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const sec = btn.closest('.section-card');
+          const key = sec.getAttribute('data-section');
+          state.collapsed[key] = !state.collapsed[key];
+          saveState();
+          syncControlsUI();
+        });
+      });
+
+      // Персонаж
+      document.getElementById('input-char-name').addEventListener('input', (e) => {
         state.charName = e.target.value;
         saveState();
         recalculate();
       });
 
-      inputDays.addEventListener('input', (e) => {
-        state.days = Math.max(0, parseInt(e.target.value, 10) || 0);
+      document.getElementById('select-char-const').addEventListener('change', (e) => {
+        state.charConst = parseInt(e.target.value, 10);
+        saveState();
+        syncControlsUI();
+        recalculate();
+      });
+
+      document.getElementById('input-char-pity').addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val) || val < 0) val = 0;
+        if (val > 89) { val = 89; e.target.value = 89; }
+        state.charPity = val;
         saveState();
         recalculate();
       });
 
-      document.querySelectorAll('.days-preset').forEach(btn => {
+      document.getElementById('btn-char-5050').addEventListener('click', () => {
+        state.charGuaranteed = false;
+        saveState();
+        syncControlsUI();
+        recalculate();
+      });
+
+      document.getElementById('btn-char-100').addEventListener('click', () => {
+        state.charGuaranteed = true;
+        saveState();
+        syncControlsUI();
+        recalculate();
+      });
+
+      document.querySelectorAll('#radiance-group [data-rad]').forEach(btn => {
         btn.addEventListener('click', () => {
-          const d = parseInt(btn.getAttribute('data-days'), 10);
-          state.days = d;
-          inputDays.value = d;
+          state.radianceLosses = parseInt(btn.getAttribute('data-rad'), 10);
           saveState();
+          syncControlsUI();
           recalculate();
         });
       });
 
-      inputPrimos.addEventListener('input', (e) => {
+      // Сигнатурное оружие
+      const toggleWeapon = () => {
+        state.weaponEnabled = !state.weaponEnabled;
+        saveState();
+        syncControlsUI();
+        recalculate();
+      };
+      const wBanner = document.getElementById('weapon-toggle-banner');
+      wBanner.addEventListener('click', toggleWeapon);
+      wBanner.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          toggleWeapon();
+        }
+      });
+
+      document.getElementById('input-weapon-name').addEventListener('input', (e) => {
+        state.weaponName = e.target.value;
+        saveState();
+        recalculate();
+      });
+
+      document.getElementById('input-weapon-pity').addEventListener('input', (e) => {
+        let val = parseInt(e.target.value, 10);
+        if (isNaN(val) || val < 0) val = 0;
+        if (val > 79) { val = 79; e.target.value = 79; }
+        state.weaponPity = val;
+        saveState();
+        recalculate();
+      });
+
+      document.querySelectorAll('#refinement-group [data-ref]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          state.weaponRef = parseInt(btn.getAttribute('data-ref'), 10);
+          saveState();
+          syncControlsUI();
+          recalculate();
+        });
+      });
+
+      document.getElementById('btn-fate-0').addEventListener('click', () => {
+        state.weaponFatePoint = 0;
+        saveState();
+        syncControlsUI();
+        recalculate();
+      });
+
+      document.getElementById('btn-fate-1').addEventListener('click', () => {
+        state.weaponFatePoint = 1;
+        saveState();
+        syncControlsUI();
+        recalculate();
+      });
+
+      // Кошелёк и дни
+      document.getElementById('input-primos').addEventListener('input', (e) => {
         state.primos = e.target.value;
         saveState();
         recalculate();
       });
 
-      inputFates.addEventListener('input', (e) => {
+      document.getElementById('input-fates').addEventListener('input', (e) => {
         state.fates = e.target.value;
         saveState();
         recalculate();
       });
 
-      inputStarglitter.addEventListener('input', (e) => {
+      document.getElementById('input-starglitter').addEventListener('input', (e) => {
         state.starglitter = e.target.value;
         saveState();
         recalculate();
       });
 
-      inputPity.addEventListener('input', (e) => {
-        let val = parseInt(e.target.value, 10);
-        if (!isNaN(val) && val > 89) {
-          val = 89;
-          e.target.value = 89;
-        }
-        state.pity = e.target.value;
+      const inputDays = document.getElementById('input-days');
+      const rangeDays = document.getElementById('range-days');
+      const setDays = (val) => {
+        const clamped = Math.min(90, Math.max(0, parseInt(val, 10) || 0));
+        state.days = clamped;
+        inputDays.value = clamped;
+        rangeDays.value = clamped;
         saveState();
         recalculate();
+      };
+
+      inputDays.addEventListener('input', (e) => setDays(e.target.value));
+      rangeDays.addEventListener('input', (e) => setDays(e.target.value));
+
+      document.querySelectorAll('.preset-btn[data-days]').forEach(btn => {
+        btn.addEventListener('click', () => setDays(btn.getAttribute('data-days')));
       });
 
-      // Созвездия
-      document.querySelectorAll('.const-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.targetConst = parseInt(btn.getAttribute('data-const'), 10);
-          saveState();
-          syncControlsUI();
-          recalculate();
-        });
-      });
-
-      // Гарант 50/50 vs 100%
-      document.getElementById('btn-guarantee-5050').addEventListener('click', () => {
-        state.isGuaranteed = false;
-        saveState();
-        syncControlsUI();
-        recalculate();
-      });
-
-      document.getElementById('btn-guarantee-100').addEventListener('click', () => {
-        state.isGuaranteed = true;
-        saveState();
-        syncControlsUI();
-        recalculate();
-      });
-
-      // Счётчик Пленительного сияния
-      document.querySelectorAll('.rad-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.radianceLosses = parseInt(btn.getAttribute('data-radiance'), 10);
-          saveState();
-          syncControlsUI();
-          recalculate();
-        });
-      });
-
-      // Переключатели пассивного дохода
+      // Пассивный доход
       document.getElementById('toggle-dailies').addEventListener('click', () => {
         state.dailies = !state.dailies;
         saveState();
@@ -1385,98 +2679,106 @@
         recalculate();
       });
 
-      // Вкладки категорий
-      document.querySelectorAll('.filter-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-          state.filter = btn.getAttribute('data-filter');
+      document.getElementById('toggle-paimon').addEventListener('click', () => {
+        state.paimonShop = !state.paimonShop;
+        saveState();
+        syncControlsUI();
+        recalculate();
+      });
+
+      // Фильтры плана
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.addEventListener('click', () => {
+          state.filter = tab.getAttribute('data-filter');
           saveState();
           syncControlsUI();
-          renderTasks();
+          renderSources();
         });
       });
 
-      // Добавление пользовательской задачи
-      document.getElementById('custom-task-form').addEventListener('submit', (e) => {
+      // Добавление своего источника
+      document.getElementById('custom-source-form').addEventListener('submit', (e) => {
         e.preventDefault();
-        const titleInput = document.getElementById('custom-task-title');
-        const primosInput = document.getElementById('custom-task-primos');
-        const title = titleInput.value.trim();
-        const amount = Math.max(0, parseInt(primosInput.value, 10) || 0);
+        const titleEl = document.getElementById('custom-title');
+        const catEl = document.getElementById('custom-cat');
+        const primosEl = document.getElementById('custom-primos');
+
+        const title = titleEl.value.trim();
+        const amount = Math.max(0, parseInt(primosEl.value, 10) || 0);
 
         if (!title) {
-          showToast('Введи название задачи');
-          titleInput.focus();
+          showToast('Введи название источника');
+          titleEl.focus();
           return;
         }
         if (amount <= 0) {
           showToast('Укажи количество Камней Истока');
-          primosInput.focus();
+          primosEl.focus();
           return;
         }
 
-        const id = `custom-${Date.now()}`;
-        state.customTasks.unshift({
+        const id = 'custom-' + Date.now();
+        state.customSources.unshift({
           id,
-          category: 'custom',
-          categoryLabel: 'Своя задача',
+          category: catEl.value,
           title,
           defaultPrimos: amount,
           isCustom: true
         });
-        state.taskPrimos[id] = amount;
-        state.checkedTasks[id] = true;
+        state.sourcePrimos[id] = amount;
+        state.selectedSources[id] = true;
 
-        titleInput.value = '';
-        primosInput.value = '';
+        titleEl.value = '';
+        primosEl.value = '';
         saveState();
         recalculate();
-        renderTasks();
-        showToast('Задача добавлена в план');
+        renderSources();
+        showToast('Источник добавлен в план');
       });
 
-      // Кнопка «Сбросить отметки»
-      document.getElementById('uncheck-all-btn').addEventListener('click', () => {
-        state.checkedTasks = {};
+      // Кнопка «Очистить план»
+      document.getElementById('btn-uncheck-plan').addEventListener('click', () => {
+        state.selectedSources = {};
         saveState();
         recalculate();
-        renderTasks();
-        showToast('Все отметки в списке сняты');
+        renderSources();
+        showToast('Отметки в плане зачистки сброшены');
       });
 
-      // Двухшаговая кнопка «Сбросить всё до нуля»
-      const fullResetBtn = document.getElementById('full-reset-btn');
-      const fullResetLabel = document.getElementById('full-reset-label');
-      fullResetBtn.addEventListener('click', () => {
-        if (!fullResetPending) {
-          fullResetPending = true;
-          fullResetLabel.textContent = 'Нажми ещё раз для сброса';
-          fullResetBtn.classList.add('bg-rose-500/20', 'border-rose-400/45', 'text-rose-200');
-          clearTimeout(fullResetTimer);
-          fullResetTimer = setTimeout(() => {
-            fullResetPending = false;
-            fullResetLabel.textContent = 'Сбросить всё до нуля';
-            fullResetBtn.classList.remove('bg-rose-500/20', 'border-rose-400/45', 'text-rose-200');
+      // Двухшаговая кнопка «Сбросить всё» (без alert/confirm)
+      const resetBtn = document.getElementById('btn-reset-all');
+      const resetLabel = document.getElementById('reset-all-label');
+      resetBtn.addEventListener('click', () => {
+        if (!resetConfirmPending) {
+          resetConfirmPending = true;
+          resetLabel.textContent = 'Нажми ещё раз';
+          resetBtn.classList.add('btn-danger-confirm');
+          clearTimeout(resetConfirmTimer);
+          resetConfirmTimer = setTimeout(() => {
+            resetConfirmPending = false;
+            resetLabel.textContent = 'Сбросить всё';
+            resetBtn.classList.remove('btn-danger-confirm');
           }, 3500);
         } else {
-          fullResetPending = false;
-          clearTimeout(fullResetTimer);
-          fullResetLabel.textContent = 'Сбросить всё до нуля';
-          fullResetBtn.classList.remove('bg-rose-500/20', 'border-rose-400/45', 'text-rose-200');
+          resetConfirmPending = false;
+          clearTimeout(resetConfirmTimer);
+          resetLabel.textContent = 'Сбросить всё';
+          resetBtn.classList.remove('btn-danger-confirm');
 
-          state = getInitialState();
+          state = createDefaultState();
           saveState();
           hydrateInputs();
           syncControlsUI();
           recalculate();
-          renderTasks();
-          showToast('Калькулятор сброшен до начальных значений');
+          renderSources();
+          showToast('Калькулятор полностью сброшен');
         }
       });
 
       // Первый рендер
       syncControlsUI();
       recalculate();
-      renderTasks();
+      renderSources();
     });
   </script>
 </body>
